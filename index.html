@@ -1,0 +1,44 @@
+const appHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Globo Interactivo — Salud mental y deporte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Fraunces:wght@400;500&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Dependencias de Globe.gl -->
+  <script src="https://unpkg.com/three"></script>
+  <script src="https://unpkg.com/globe.gl"></script>
+</head>
+<body>
+
+  <!-- Contenedor del globo 3D -->
+  <div id="globe-container"></div>
+
+  <!-- Interfaz de usuario superpuesta -->
+  <div class="ui-layer">
+    <header class="header">
+      <p class="kicker">Vista global · Salud mental y deporte</p>
+      <h1>Cada punto<br>tiene una historia</h1>
+      <button id="fullscreen-btn" class="btn">Pantalla Completa</button>
+    </header>
+
+    <!-- Tarjeta de información (oculta por defecto) -->
+    <div id="info-card" class="info-card hidden">
+      <div class="card-header">
+        <span id="card-tag" class="tag"></span>
+        <button id="close-card" class="close-btn">×</button>
+      </div>
+      <h2 id="card-title">Título</h2>
+      <h3 id="card-subtitle">Subtítulo</h3>
+      <p id="card-desc">Descripción del caso o estudio.</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+`;
