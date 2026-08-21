@@ -1,14 +1,14 @@
-const appHtml = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Globo Interactivo — Salud mental y deporte</title>
+  <title>Globo Interactivo — Salud mental y fútbol</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Fraunces:wght@400;500&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  
+  <link rel="stylesheet" href="style.css">
+
   <!-- Dependencias de Globe.gl -->
   <script src="https://unpkg.com/three"></script>
   <script src="https://unpkg.com/globe.gl"></script>
@@ -21,42 +21,72 @@ const appHtml = `<!DOCTYPE html>
   <!-- Interfaz de usuario superpuesta -->
   <div class="ui-layer">
     <header class="header">
-      <p class="kicker">Vista global · Salud mental y deporte</p>
+      <p class="kicker">Vista global · Salud mental y fútbol</p>
       <h1>Cada punto<br>tiene una historia</h1>
-      <button id="fullscreen-btn" class="btn">Pantalla Completa</button>
+      <div class="header-actions">
+        <button id="fullscreen-btn" class="btn">Pantalla Completa</button>
+        <button id="tour-btn" class="btn btn-accent">▶ Recorrido guiado</button>
+      </div>
     </header>
 
     <!-- Tarjeta de información (oculta por defecto) -->
     <div id="info-card" class="info-card hidden">
       <div class="card-header">
         <span id="card-tag" class="tag"></span>
+        <span id="card-year" class="year"></span>
         <button id="close-card" class="close-btn">×</button>
       </div>
       <h2 id="card-title">Título</h2>
       <h3 id="card-subtitle">Subtítulo</h3>
       <p id="card-desc">Descripción del caso o estudio.</p>
+      <p id="card-source" class="source"></p>
+    </div>
+
+    <!-- Barra de estadísticas -->
+    <div id="stats-bar" class="stats-bar"></div>
+  </div>
+
+  <!-- Panel de Ajustes (Tweaks) -->
+  <div class="tweaks-panel">
+    <div class="tweaks-header">Controles del Globo</div>
+
+    <div class="control-group">
+      <label for="search-input">Buscar país o caso</label>
+      <input type="text" id="search-input" placeholder="Ej. Alemania, Iniesta...">
+    </div>
+
+    <div class="control-group">
+      <label>Filtrar por categoría</label>
+      <div class="filter-buttons" id="filter-buttons">
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="danger">Riesgo</button>
+        <button class="filter-btn" data-filter="turf">Recuperación</button>
+        <button class="filter-btn" data-filter="info">Datos globales</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label for="speed-slider">Velocidad de Rotación</label>
+      <input type="range" id="speed-slider" min="0" max="2" step="0.1" value="0.5">
+    </div>
+
+    <div class="control-group">
+      <label for="arc-toggle">Mostrar Flujos (Arcos)</label>
+      <input type="checkbox" id="arc-toggle" checked>
+    </div>
+
+    <div class="control-group">
+      <label for="atmosphere-toggle">Atmósfera Nocturna</label>
+      <input type="checkbox" id="atmosphere-toggle" checked>
+    </div>
+
+    <div class="legend" id="legend">
+      <div class="legend-item"><span class="dot danger"></span> Área de riesgo</div>
+      <div class="legend-item"><span class="dot turf"></span> Recuperación / protección</div>
+      <div class="legend-item"><span class="dot info"></span> Dato global</div>
     </div>
   </div>
-<!-- Panel de Ajustes (Tweaks) -->
-    <div class="tweaks-panel">
-      <div class="tweaks-header">Controles del Globo</div>
-      
-      <div class="control-group">
-        <label for="speed-slider">Velocidad de Rotación</label>
-        <input type="range" id="speed-slider" min="0" max="2" step="0.1" value="0.5">
-      </div>
 
-      <div class="control-group">
-        <label for="arc-toggle">Mostrar Flujos (Arcos)</label>
-        <input type="checkbox" id="arc-toggle" checked>
-      </div>
-
-      <div class="control-group">
-        <label for="atmosphere-toggle">Atmósfera Nocturna</label>
-        <input type="checkbox" id="atmosphere-toggle" checked>
-      </div>
-    </div>
   <script src="script.js"></script>
 </body>
 </html>
-`;
