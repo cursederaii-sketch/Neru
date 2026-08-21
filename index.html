@@ -26,6 +26,7 @@
       <div class="header-actions">
         <button id="fullscreen-btn" class="btn">Pantalla Completa</button>
         <button id="tour-btn" class="btn btn-accent">▶ Recorrido guiado</button>
+        <button id="cinematic-btn" class="btn btn-cinema">🎬 Ver la historia</button>
       </div>
     </header>
 
@@ -85,6 +86,29 @@
       <div class="legend-item"><span class="dot turf"></span> Recuperación / protección</div>
       <div class="legend-item"><span class="dot info"></span> Dato global</div>
     </div>
+  </div>
+
+  <!-- Cinemática: secuencia animada a pantalla completa -->
+  <div id="cinematic" class="cinematic hidden">
+    <div class="cinematic-bg"></div>
+    <button id="cinematic-close" class="cinematic-close">×</button>
+    <div class="cinematic-visual" id="cinematic-visual">
+      <svg id="cinema-svg" viewBox="0 0 300 300" width="220" height="220">
+        <circle id="cinema-ring" cx="150" cy="150" r="90" fill="none" stroke-width="3"/>
+        <g id="cinema-icon"></g>
+      </svg>
+    </div>
+    <div class="cinematic-text">
+      <p id="cinema-kicker" class="cinema-kicker"></p>
+      <h2 id="cinema-title"></h2>
+      <p id="cinema-body"></p>
+    </div>
+    <div class="cinematic-controls">
+      <button id="cinema-prev" class="cinema-nav">‹</button>
+      <div class="cinema-progress" id="cinema-progress"></div>
+      <button id="cinema-next" class="cinema-nav">›</button>
+    </div>
+    <button id="cinema-skip" class="cinema-skip">Saltar</button>
   </div>
 
   <script src="script.js"></script>
