@@ -37,7 +37,25 @@ const appHtml = `<!DOCTYPE html>
       <p id="card-desc">Descripción del caso o estudio.</p>
     </div>
   </div>
+<!-- Panel de Ajustes (Tweaks) -->
+    <div class="tweaks-panel">
+      <div class="tweaks-header">Controles del Globo</div>
+      
+      <div class="control-group">
+        <label for="speed-slider">Velocidad de Rotación</label>
+        <input type="range" id="speed-slider" min="0" max="2" step="0.1" value="0.5">
+      </div>
 
+      <div class="control-group">
+        <label for="arc-toggle">Mostrar Flujos (Arcos)</label>
+        <input type="checkbox" id="arc-toggle" checked>
+      </div>
+
+      <div class="control-group">
+        <label for="atmosphere-toggle">Atmósfera Nocturna</label>
+        <input type="checkbox" id="atmosphere-toggle" checked>
+      </div>
+    </div>
   <script src="script.js"></script>
 </body>
 </html>

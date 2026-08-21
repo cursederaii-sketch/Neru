@@ -167,3 +167,64 @@ h1 {
   .ui-layer { padding: 15px; justify-content: flex-start; gap: 20px; }
   .info-card { align-self: center; max-width: 100%; }
 }
+/* Panel de Controles (Tweaks) */
+.tweaks-panel {
+  pointer-events: auto;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  width: 280px;
+  background: var(--night-panel);
+  border: 1px solid var(--night-dim);
+  border-radius: 8px;
+  padding: 20px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.tweaks-header {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--caution);
+  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 8px;
+}
+
+.control-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-family: var(--body);
+  font-size: 14px;
+  color: var(--night-ink);
+}
+
+.control-group input[type="range"] {
+  accent-color: var(--caution);
+  width: 100%;
+}
+
+.control-group input[type="checkbox"] {
+  accent-color: var(--caution);
+  width: 16px;
+  height: 16px;
+  margin-top: 5px;
+}
+
+/* Ajustes responsivos para el panel */
+@media (max-width: 768px) {
+  .tweaks-panel {
+    top: auto;
+    bottom: 30px;
+    right: 15px;
+    left: 15px;
+    width: auto;
+  }
+}

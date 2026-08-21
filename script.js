@@ -127,3 +127,28 @@ window.addEventListener('resize', () => {
   world.width(window.innerWidth);
   world.height(window.innerHeight);
 });
+// --- INTERACTIVIDAD DEL PANEL DE CONTROLES (TWEAKS) ---
+
+// 1. Control de Velocidad de Rotación
+const speedSlider = document.getElementById('speed-slider');
+speedSlider.addEventListener('input', (e) => {
+  world.controls().autoRotateSpeed = parseFloat(e.target.value);
+  // Si la velocidad es mayor a 0, asegurarnos de que la rotación esté activa
+  world.controls().autoRotate = parseFloat(e.target.value) > 0;
+});
+
+// 2. Control para Mostrar/Ocultar Arcos de Conexión
+const arcToggle = document.getElementById('arc-toggle');
+arcToggle.addEventListener('change', (e) => {
+  if (e.target.checked) {
+    world.arcsData(arcsData); // Restaura los datos
+  } else {
+    world.arcsData([]); // Vacía los arcos para ocultarlos
+  }
+});
+
+// 3. Control de Atmósfera y Brillo
+const atmosphereToggle = document.getElementById('atmosphere-toggle');
+atmosphereToggle.addEventListener('change', (e) => {
+  world.showAtmosphere(e.target.checked);
+});
