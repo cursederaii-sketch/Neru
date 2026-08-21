@@ -230,27 +230,38 @@ const world = Globe()
 world.controls().autoRotate = true;
 world.controls().autoRotateSpeed = 0.5;
 
-// Capa de nubes semitransparente girando por encima del globo
-(function addClouds() {
-  const CLOUDS_ALT = 0.006;
-  const CLOUDS_ROTATION_SPEED = -0.006; // grados por frame
-  new THREE.TextureLoader().load(
-    'https://unpkg.com/three-globe/example/img/clouds.png',
-    cloudsTexture => {
-      const clouds = new THREE.Mesh(
-        new THREE.SphereGeometry(world.getGlobeRadius() * (1 + CLOUDS_ALT), 75, 75),
-        new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true, opacity: 0.55 })
-      );
-      world.scene().add(clouds);
-      (function rotateClouds() {
-        clouds.rotation.y += CLOUDS_ROTATION_SPEED * Math.PI / 180;
-        requestAnimationFrame(rotateClouds);
-      })();
-    },
-    undefined,
-    () => { /* si la textura falla, el globo sigue funcionando sin nubes */ }
-  );
-})();
+// Capa de nubes semitransparente girando por encima del globo.
+// Envuelta en try/catch: si three.js o la textura fallan, el resto del sitio
+// (tarjetas, filtros, cinemática) debe seguir funcionando igual.
+function addClouds() {
+  try {
+    if (typeof THREE === 'undefined') {
+      console.warn('THREE no está disponible: se omite la capa de nubes.');
+      return;
+    }
+    const CLOUDS_ALT = 0.006;
+    const CLOUDS_ROTATION_SPEED = -0.006; // grados por frame
+    new THREE.TextureLoader().load(
+      'https://unpkg.com/three-globe/example/img/clouds.png',
+      cloudsTexture => {
+        const clouds = new THREE.Mesh(
+          new THREE.SphereGeometry(world.getGlobeRadius() * (1 + CLOUDS_ALT), 75, 75),
+          new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true, opacity: 0.55 })
+        );
+        world.scene().add(clouds);
+        (function rotateClouds() {
+          clouds.rotation.y += CLOUDS_ROTATION_SPEED * Math.PI / 180;
+          requestAnimationFrame(rotateClouds);
+        })();
+      },
+      undefined,
+      () => { /* si la textura falla, el globo sigue funcionando sin nubes */ }
+    );
+  } catch (err) {
+    console.warn('No se pudo cargar la capa de nubes:', err);
+  }
+}
+addClouds();
 
 // --- Lógica de la interfaz ---
 const infoCard = document.getElementById('info-card');
