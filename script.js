@@ -761,17 +761,21 @@ function loadSurveyResponses(callback) {
     if (settled) return;
     settled = true;
     cleanup(scriptEl);
-    callback(new Error('No se pudo conectar con la planilla.'));
+    console.error('[encuesta] Falló la carga del script JSONP de Google Sheets.');
+    callback(new Error('network'));
   };
   document.body.appendChild(scriptEl);
 
-  // Si Google tarda demasiado, no dejamos al usuario esperando para siempre
+  // Si Google tarda demasiado (por ejemplo porque la hoja no es pública y
+  // devuelve una página de login en vez de ejecutar nuestro callback), no
+  // dejamos al usuario esperando para siempre.
   setTimeout(() => {
     if (settled) return;
     settled = true;
     cleanup(scriptEl);
-    callback(new Error('Tiempo de espera agotado.'));
-  }, 12000);
+    console.error('[encuesta] Tiempo de espera agotado esperando la respuesta de Google Sheets. La causa más común: la hoja no está compartida como "Cualquier persona con el enlace puede ver".');
+    callback(new Error('timeout'));
+  }, 9000);
 }
 
 // La tabla de Google viene como table.rows[].c[].{v,f} — usamos el valor
@@ -948,7 +952,10 @@ function refreshSurveyPanel() {
   loadSurveyResponses((err, json) => {
     surveyLoading = false;
     if (err) {
-      statusEl.textContent = 'No se pudo cargar la planilla. Verificá que siga publicada y volvé a intentar.';
+      const sheetUrl = `https://docs.google.com/spreadsheets/d/${SURVEY_SHEET_ID}/edit`;
+      statusEl.innerHTML = `No se pudo cargar la planilla. Lo más probable es que no esté compartida como
+        <strong>"Cualquier persona con el enlace puede ver"</strong>.
+        <a href="${sheetUrl}" target="_blank" rel="noopener" class="results-status-link">Abrir la planilla y revisar el acceso ↗</a>`;
       statusEl.classList.add('error');
       return;
     }
@@ -988,4 +995,130 @@ resultsRefreshBtn.addEventListener('click', refreshSurveyPanel);
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !resultsPanel.classList.contains('hidden')) closeResultsPanel();
+});
+
+// =====================================================================
+// SONIDO AMBIENTE: pad calmo + "aire" filtrado, generados con Web Audio
+// API (sin archivos externos). Se arranca/para con un botón, ya que los
+// navegadores no permiten reproducir audio sin un gesto del usuario.
+// =====================================================================
+
+let audioCtx = null;
+let ambientNodes = null;
+let ambientPlaying = false;
+
+function buildAmbientSound() {
+  const ctx = audioCtx;
+  const master = ctx.createGain();
+  master.gain.value = 0;
+  master.connect(ctx.destination);
+
+  // --- Capa 1: pad de acordes suaves (varias ondas sinusoidales/triangulares) ---
+  const padFreqs = [110, 164.81, 220, 277.18]; // A2, E3, A3, C#4 — acorde cálido
+  const padGain = ctx.createGain();
+  padGain.gain.value = 0.05;
+  padGain.connect(master);
+
+  const padFilter = ctx.createBiquadFilter();
+  padFilter.type = 'lowpass';
+  padFilter.frequency.value = 900;
+  padFilter.connect(padGain);
+
+  const oscillators = padFreqs.map((freq, i) => {
+    const osc = ctx.createOscillator();
+    osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+    osc.frequency.value = freq;
+
+    // Un leve vibrato lento en cada voz para que el pad "respire"
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.05 + i * 0.015;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 1.2;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    lfo.start();
+
+    osc.connect(padFilter);
+    osc.start();
+    return osc;
+  });
+
+  // --- Capa 2: "aire" — ruido filtrado tipo viento/olas suaves ---
+  const noiseBufferSize = ctx.sampleRate * 2;
+  const noiseBuffer = ctx.createBuffer(1, noiseBufferSize, ctx.sampleRate);
+  const noiseData = noiseBuffer.getChannelData(0);
+  let lastOut = 0;
+  for (let i = 0; i < noiseBufferSize; i++) {
+    const white = Math.random() * 2 - 1;
+    // Filtro simple para volver el ruido blanco en ruido "marrón" (más suave)
+    lastOut = (lastOut + 0.02 * white) / 1.02;
+    noiseData[i] = lastOut * 3.5;
+  }
+  const noiseSource = ctx.createBufferSource();
+  noiseSource.buffer = noiseBuffer;
+  noiseSource.loop = true;
+
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'lowpass';
+  noiseFilter.frequency.value = 500;
+
+  const noiseGain = ctx.createGain();
+  noiseGain.gain.value = 0.35;
+
+  // El "aire" sube y baja de volumen muy lentamente, como olas
+  const swellLfo = ctx.createOscillator();
+  swellLfo.frequency.value = 0.04;
+  const swellGain = ctx.createGain();
+  swellGain.gain.value = 0.15;
+  swellLfo.connect(swellGain);
+  swellGain.connect(noiseGain.gain);
+  swellLfo.start();
+
+  noiseSource.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(master);
+  noiseSource.start();
+
+  return { master, oscillators, noiseSource, swellLfo, lfoRefs: oscillators };
+}
+
+function startAmbientSound() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  if (!ambientNodes) {
+    ambientNodes = buildAmbientSound();
+  }
+  const now = audioCtx.currentTime;
+  ambientNodes.master.gain.cancelScheduledValues(now);
+  ambientNodes.master.gain.setValueAtTime(ambientNodes.master.gain.value, now);
+  ambientNodes.master.gain.linearRampToValueAtTime(0.6, now + 2.5);
+  ambientPlaying = true;
+}
+
+function stopAmbientSound() {
+  if (!ambientNodes || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  ambientNodes.master.gain.cancelScheduledValues(now);
+  ambientNodes.master.gain.setValueAtTime(ambientNodes.master.gain.value, now);
+  ambientNodes.master.gain.linearRampToValueAtTime(0, now + 1.5);
+  ambientPlaying = false;
+}
+
+const ambientToggleBtn = document.getElementById('ambient-toggle');
+ambientToggleBtn.addEventListener('click', () => {
+  if (ambientPlaying) {
+    stopAmbientSound();
+    ambientToggleBtn.classList.remove('playing');
+    ambientToggleBtn.setAttribute('aria-pressed', 'false');
+    ambientToggleBtn.textContent = '🎧 Sonido ambiente';
+  } else {
+    startAmbientSound();
+    ambientToggleBtn.classList.add('playing');
+    ambientToggleBtn.setAttribute('aria-pressed', 'true');
+    ambientToggleBtn.textContent = '🔊 Sonido ambiente';
+  }
 });

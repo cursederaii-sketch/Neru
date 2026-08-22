@@ -133,6 +133,20 @@ h1 {
   color: var(--night);
 }
 
+.btn-ambient {
+  border-color: var(--turf-glow);
+}
+
+.btn-ambient:hover {
+  background: var(--turf-glow);
+  color: var(--night);
+}
+
+.btn-ambient.playing {
+  background: var(--turf-glow);
+  color: var(--night);
+}
+
 /* Tarjeta de información */
 .info-card {
   pointer-events: auto;
@@ -1016,6 +1030,19 @@ h1 {
 
 .results-status.error {
   color: var(--danger-glow);
+  line-height: 1.6;
+}
+
+.results-status-link {
+  display: inline-block;
+  margin-left: 8px;
+  color: var(--danger-glow);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.results-status-link:hover {
+  color: var(--night-ink);
 }
 
 .results-grid {
