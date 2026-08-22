@@ -1006,13 +1006,37 @@ const resultsPanel = document.getElementById('results-panel');
 const resultsCloseBtn = document.getElementById('results-close');
 const resultsRefreshBtn = document.getElementById('results-refresh');
 
+// NOTA: además de sacar/poner la clase "hidden", forzamos estos estilos por
+// JS directamente (inline). Es un respaldo por si el navegador, por el motivo
+// que sea, no está aplicando la regla ".results-panel" de style.css — así el
+// panel se muestra igual, sin depender pura y exclusivamente del CSS externo.
+const RESULTS_PANEL_VISIBLE_STYLES = {
+  position: 'fixed',
+  top: '0',
+  left: '0',
+  right: '0',
+  bottom: '0',
+  zIndex: '90',
+  background: 'rgba(13, 21, 18, 0.97)',
+  backdropFilter: 'blur(6px)',
+  overflowY: 'auto',
+  padding: '40px 30px 60px',
+  opacity: '1',
+  visibility: 'visible',
+  pointerEvents: 'auto'
+};
+
 function openResultsPanel() {
   resultsPanel.classList.remove('hidden');
+  Object.assign(resultsPanel.style, RESULTS_PANEL_VISIBLE_STYLES);
   refreshSurveyPanel();
 }
 
 function closeResultsPanel() {
   resultsPanel.classList.add('hidden');
+  resultsPanel.style.opacity = '0';
+  resultsPanel.style.visibility = 'hidden';
+  resultsPanel.style.pointerEvents = 'none';
 }
 
 resultsToggleBtn.addEventListener('click', openResultsPanel);
