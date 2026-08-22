@@ -756,6 +756,10 @@ function tallyAnswers(rows, question) {
   return { entries, total };
 }
 
+// Geometría fija del anillo (donut): radio 48, grosor de trazo 16.
+const DONUT_R = 48;
+const DONUT_CIRC = 2 * Math.PI * DONUT_R;
+
 function renderChartCard(question, rows, colorIndex, delayIndex) {
   const { entries, total } = tallyAnswers(rows, question);
   const card = document.createElement('div');
@@ -772,21 +776,45 @@ function renderChartCard(question, rows, colorIndex, delayIndex) {
   const restCount = entries.slice(TOP_N).reduce((sum, [, c]) => sum + c, 0);
   if (restCount > 0) shown = [...shown, [`Otras respuestas (${entries.length - TOP_N})`, restCount]];
 
-  const max = shown[0][1];
-  const color = chartPalette[colorIndex % chartPalette.length];
+  // Cada porción del anillo es un <circle> con stroke-dasharray recortado a
+  // su tramo y un stroke-dashoffset que lo corre hasta el punto donde
+  // terminó la porción anterior. rotate(-90deg) (definido en CSS) hace que
+  // el recorrido arranque arriba (las 12) en vez de a la derecha (las 3).
+  let cumulative = 0;
+  const segmentsHtml = shown.map(([, count], i) => {
+    const frac = total ? count / total : 0;
+    const len = frac * DONUT_CIRC;
+    const offset = -cumulative;
+    cumulative += len;
+    const color = chartPalette[i % chartPalette.length];
+    return `<circle class="donut-segment" cx="60" cy="60" r="${DONUT_R}"
+      stroke="${color}"
+      stroke-dasharray="${len.toFixed(2)} ${(DONUT_CIRC - len).toFixed(2)}"
+      stroke-dashoffset="${offset.toFixed(2)}"
+      style="animation-delay:${(i * 0.08).toFixed(2)}s"></circle>`;
+  }).join('');
 
-  const barsHtml = shown.map(([label, count]) => {
+  const legendHtml = shown.map(([label, count], i) => {
     const pct = total ? Math.round((count / total) * 100) : 0;
-    const widthPct = max ? Math.round((count / max) * 100) : 0;
+    const color = chartPalette[i % chartPalette.length];
     return `
-      <div class="bar-row">
-        <span class="bar-label" title="${label}">${label}</span>
-        <div class="bar-track"><div class="bar-fill" style="--target-width:${widthPct}%; background:${color}"></div></div>
-        <span class="bar-value">${pct}%</span>
+      <div class="legend-item">
+        <span class="legend-dot" style="background:${color}"></span>
+        <span class="legend-label" title="${label}">${label}</span>
+        <span class="legend-value">${pct}%</span>
       </div>`;
   }).join('');
 
-  card.innerHTML = `<h4>${question.label}</h4><div class="bar-list">${barsHtml}</div><p class="chart-meta">${total} respuesta${total === 1 ? '' : 's'}</p>`;
+  card.innerHTML = `
+    <h4>${question.label}</h4>
+    <div class="donut-chart">
+      <svg viewBox="0 0 120 120" class="donut-svg">
+        <circle class="donut-track" cx="60" cy="60" r="${DONUT_R}"></circle>
+        ${segmentsHtml}
+      </svg>
+      <div class="donut-legend">${legendHtml}</div>
+    </div>
+    <p class="chart-meta">${total} respuesta${total === 1 ? '' : 's'}</p>`;
   return card;
 }
 
@@ -795,16 +823,6 @@ function renderSurveyCharts(rows) {
   grid.innerHTML = '';
   surveyQuestions.forEach((q, i) => {
     grid.appendChild(renderChartCard(q, rows, i, i));
-  });
-
-  // Las barras arrancan en 0% y se animan hasta su ancho real una vez que
-  // ya están en el DOM, para que el crecimiento se vea en vez de aparecer listo.
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      grid.querySelectorAll('.bar-fill').forEach(el => {
-        el.style.width = el.style.getPropertyValue('--target-width');
-      });
-    });
   });
 }
 
