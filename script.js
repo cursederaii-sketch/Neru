@@ -736,6 +736,14 @@ function gvizToRows(json) {
   return rows.map(r => (r.c || []).map(cell => (cell && (cell.f !== undefined && cell.f !== null ? cell.f : cell.v)) || ''));
 }
 
+// Encabezados de columna tal como los definió la planilla (fila de títulos),
+// para poder nombrar las preguntas de texto libre que no están en
+// surveyQuestions sin tener que hardcodearlas.
+function gvizToHeaders(json) {
+  const cols = json.table && json.table.cols ? json.table.cols : [];
+  return cols.map(c => (c && c.label) || '');
+}
+
 function tallyAnswers(rows, question) {
   const counts = {};
   let total = 0;
@@ -826,6 +834,64 @@ function renderSurveyCharts(rows) {
   });
 }
 
+// --- Respuestas de texto libre ---
+// Cualquier columna que no sea la marca temporal (0) ni esté mapeada en
+// surveyQuestions se trata como texto libre: en vez de graficarla, se
+// listan las respuestas tal cual las escribió cada persona.
+const chartedCols = new Set(surveyQuestions.map(q => q.col));
+
+function getFreeTextColumns(headers, rows) {
+  const maxCol = Math.max(headers.length, ...rows.map(r => r.length), 0);
+  const cols = [];
+  for (let c = 1; c < maxCol; c++) {
+    if (chartedCols.has(c)) continue;
+    cols.push({ col: c, label: headers[c] || `Pregunta ${c}` });
+  }
+  return cols;
+}
+
+function renderFreeTextCard(question, rows, delayIndex) {
+  const answers = rows
+    .map(r => (r[question.col] || '').toString().trim())
+    .filter(Boolean);
+
+  const card = document.createElement('div');
+  card.className = 'chart-card freetext-card';
+  card.style.animationDelay = `${Math.min(delayIndex * 0.05, 0.5)}s`;
+
+  if (answers.length === 0) {
+    card.innerHTML = `<h4>${question.label}</h4><p class="chart-empty">Todavía no hay respuestas.</p>`;
+    return card;
+  }
+
+  const answersHtml = answers.map(a => `<p class="freetext-answer">“${a}”</p>`).join('');
+
+  card.innerHTML = `
+    <h4>${question.label}</h4>
+    <div class="freetext-list">${answersHtml}</div>
+    <p class="chart-meta">${answers.length} respuesta${answers.length === 1 ? '' : 's'}</p>`;
+  return card;
+}
+
+function renderFreeTextSection(headers, rows) {
+  const section = document.getElementById('freetext-section');
+  section.innerHTML = '';
+  const freeCols = getFreeTextColumns(headers, rows);
+  if (freeCols.length === 0) return;
+
+  const heading = document.createElement('h3');
+  heading.className = 'freetext-heading';
+  heading.textContent = 'Respuestas en sus propias palabras';
+  section.appendChild(heading);
+
+  const grid = document.createElement('div');
+  grid.className = 'results-grid freetext-grid';
+  freeCols.forEach((q, i) => {
+    grid.appendChild(renderFreeTextCard(q, rows, i));
+  });
+  section.appendChild(grid);
+}
+
 function refreshSurveyPanel() {
   if (surveyLoading) return;
   surveyLoading = true;
@@ -843,7 +909,9 @@ function refreshSurveyPanel() {
     }
     try {
       const rows = gvizToRows(json);
+      const headers = gvizToHeaders(json);
       renderSurveyCharts(rows);
+      renderFreeTextSection(headers, rows);
       statusEl.textContent = '';
       updatedEl.textContent = `Actualizado ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`;
     } catch (e) {

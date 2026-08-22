@@ -894,6 +894,48 @@ h1 {
   color: var(--night-dim);
 }
 
+.freetext-section {
+  max-width: 1200px;
+  margin: 34px auto 0;
+}
+
+.freetext-heading {
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--night-ink);
+  margin: 0 0 16px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.freetext-grid {
+  margin: 0;
+}
+
+.freetext-card h4 {
+  margin-bottom: 10px;
+}
+
+.freetext-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.freetext-answer {
+  font-family: var(--body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--night-dim);
+  font-style: italic;
+  border-left: 2px solid rgba(255, 255, 255, 0.12);
+  padding-left: 10px;
+}
+
 @media (max-width: 768px) {
   .results-panel { padding: 90px 15px 40px; }
   .donut-chart { flex-direction: column; align-items: stretch; gap: 14px; }
