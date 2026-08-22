@@ -10,9 +10,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Fraunces:wght@400;500&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
-  <!-- Dependencias de Globe.gl (versiones fijas: la build "latest" de three ya no expone
-       un global THREE compatible con <script> clásico, por eso se pinnean versiones) -->
-  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+  <!-- Dependencia de Globe.gl. OJO: globe.gl ya trae su PROPIA copia interna de three.js
+       empaquetada adentro (no la expone como `window.THREE`). Por eso NO hay que cargar
+       three.js aparte: si se carga un three.js global además de este bundle, terminás con
+       dos instancias de three.js incompatibles entre sí en la misma página (warning
+       "Multiple instances of Three.js being imported"), y en cuanto algo (p. ej. la capa de
+       nubes) intenta mezclar objetos creados con una instancia dentro de la escena de la
+       otra, el render loop interno de globe.gl revienta en cada frame con errores como
+       "Cannot read properties of undefined (reading 'material')". addClouds() ya está
+       preparado para funcionar sin `THREE` global (ver el guard `typeof THREE === 'undefined'`
+       más abajo en script.js), así que simplemente se omite la capa de nubes. -->
   <script src="https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
 </head>
 <body>
