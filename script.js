@@ -242,7 +242,7 @@ function addClouds() {
     const CLOUDS_ALT = 0.006;
     const CLOUDS_ROTATION_SPEED = -0.006; // grados por frame
     new THREE.TextureLoader().load(
-      'https://cdn.jsdelivr.net/npm/three-globe@2.45.2/example/img/clouds.png',
+      'https://cdn.jsdelivr.net/npm/three-globe/example/clouds/clouds.png',
       cloudsTexture => {
         const clouds = new THREE.Mesh(
           new THREE.SphereGeometry(world.getGlobeRadius() * (1 + CLOUDS_ALT), 75, 75),
