@@ -666,7 +666,7 @@ document.addEventListener('keydown', (e) => {
 // función de callback nuestra, sin pasar por la política de CORS.
 // =====================================================================
 
-const SURVEY_SHEET_ID = '1pxGsgWGJFvTc6pmnCGZeI-nn_cDDIA2NsrH19EN-rb8';
+const SURVEY_SHEET_ID = '1pxGsgWGJFvTc6pmnCGZel-nn_cDDIA2NsrH19EN-rb8';
 const SURVEY_GID = '277764764';
 
 // Qué hacer con cada columna de la planilla (0 = "Marca temporal").
