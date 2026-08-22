@@ -654,3 +654,207 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowLeft') goToCinemaSlide(cinemaIndex - 1);
   if (e.key === 'Escape') closeCinematic();
 });
+
+// =====================================================================
+// PANEL DE RESULTADOS: gráficos en vivo con las respuestas del formulario,
+// leídas directamente de la Google Sheet publicada.
+//
+// Nota técnica: Google Sheets NO habilita CORS en sus endpoints de CSV/JSON
+// (ni el "publicado como CSV" ni /gviz/tq), así que un fetch() común falla
+// en el navegador. La forma confiable de leerlos desde un sitio estático es
+// JSONP: se inyecta un <script> que carga la respuesta y ejecuta una
+// función de callback nuestra, sin pasar por la política de CORS.
+// =====================================================================
+
+const SURVEY_SHEET_ID = '1pxGsgWGJFvTc6pmnCGZeI-nn_cDDIA2NsrH19EN-rb8';
+const SURVEY_GID = '277764764';
+
+// Qué hacer con cada columna de la planilla (0 = "Marca temporal").
+// 'single' = una opción por respuesta · 'multi' = varias opciones separadas
+// por coma (checkboxes) · el resto de las columnas (texto libre) no se grafica.
+const surveyQuestions = [
+  { col: 1, type: 'single', label: 'Edad' },
+  { col: 2, type: 'single', label: 'Deporte que practica' },
+  { col: 3, type: 'single', label: 'Frecuencia con la que practica deporte' },
+  { col: 4, type: 'single', label: 'Cómo influye el deporte en su salud mental' },
+  { col: 5, type: 'single', label: 'Frecuencia de presión por obtener resultados' },
+  { col: 6, type: 'single', label: '¿Sintió ansiedad o estrés antes de competir?' },
+  { col: 7, type: 'multi', label: 'Qué situaciones le generan más presión' },
+  { col: 8, type: 'single', label: 'Cómo afecta una derrota su estado de ánimo' },
+  { col: 9, type: 'single', label: '¿Le preocupa cometer errores en competición?' },
+  { col: 10, type: 'single', label: '¿Su entrenador le brinda apoyo emocional?' },
+  { col: 11, type: 'single', label: '¿Le resulta fácil hablar de sus emociones en el equipo?' },
+  { col: 12, type: 'single', label: '¿Reciben los deportistas suficiente apoyo psicológico?' },
+  { col: 13, type: 'multi', label: 'Aspectos positivos que aporta el deporte' },
+  { col: 14, type: 'single', label: 'Importancia de la salud mental (1 a 5)' }
+];
+
+const chartPalette = ['#349662', '#C98A1E', '#e04f35', '#8C9A87', '#5B9BD5'];
+
+let surveyLoading = false;
+
+// Pide los datos de la planilla vía JSONP. callback(err, json)
+function loadSurveyResponses(callback) {
+  const callbackName = '__surveyGvizCallback_' + Date.now();
+  let settled = false;
+
+  const cleanup = (scriptEl) => {
+    delete window[callbackName];
+    if (scriptEl && scriptEl.parentNode) scriptEl.remove();
+  };
+
+  window[callbackName] = (json) => {
+    if (settled) return;
+    settled = true;
+    cleanup(scriptEl);
+    callback(null, json);
+  };
+
+  const scriptEl = document.createElement('script');
+  scriptEl.src = `https://docs.google.com/spreadsheets/d/${SURVEY_SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${callbackName}&gid=${SURVEY_GID}&_=${Date.now()}`;
+  scriptEl.onerror = () => {
+    if (settled) return;
+    settled = true;
+    cleanup(scriptEl);
+    callback(new Error('No se pudo conectar con la planilla.'));
+  };
+  document.body.appendChild(scriptEl);
+
+  // Si Google tarda demasiado, no dejamos al usuario esperando para siempre
+  setTimeout(() => {
+    if (settled) return;
+    settled = true;
+    cleanup(scriptEl);
+    callback(new Error('Tiempo de espera agotado.'));
+  }, 12000);
+}
+
+// La tabla de Google viene como table.rows[].c[].{v,f} — usamos el valor
+// formateado (f), que ya llega como texto legible.
+function gvizToRows(json) {
+  const rows = json.table && json.table.rows ? json.table.rows : [];
+  return rows.map(r => (r.c || []).map(cell => (cell && (cell.f !== undefined && cell.f !== null ? cell.f : cell.v)) || ''));
+}
+
+function tallyAnswers(rows, question) {
+  const counts = {};
+  let total = 0;
+  rows.forEach(row => {
+    const raw = row[question.col];
+    if (raw === undefined || raw === null || String(raw).trim() === '') return;
+    if (question.type === 'multi') {
+      String(raw).split(',').map(s => s.trim()).filter(Boolean).forEach(v => {
+        counts[v] = (counts[v] || 0) + 1;
+      });
+    } else {
+      const v = String(raw).trim();
+      counts[v] = (counts[v] || 0) + 1;
+    }
+    total++;
+  });
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  return { entries, total };
+}
+
+function renderChartCard(question, rows, colorIndex, delayIndex) {
+  const { entries, total } = tallyAnswers(rows, question);
+  const card = document.createElement('div');
+  card.className = 'chart-card';
+  card.style.animationDelay = `${Math.min(delayIndex * 0.05, 0.5)}s`;
+
+  if (entries.length === 0) {
+    card.innerHTML = `<h4>${question.label}</h4><p class="chart-empty">Todavía no hay respuestas.</p>`;
+    return card;
+  }
+
+  const TOP_N = 7;
+  let shown = entries.slice(0, TOP_N);
+  const restCount = entries.slice(TOP_N).reduce((sum, [, c]) => sum + c, 0);
+  if (restCount > 0) shown = [...shown, [`Otras respuestas (${entries.length - TOP_N})`, restCount]];
+
+  const max = shown[0][1];
+  const color = chartPalette[colorIndex % chartPalette.length];
+
+  const barsHtml = shown.map(([label, count]) => {
+    const pct = total ? Math.round((count / total) * 100) : 0;
+    const widthPct = max ? Math.round((count / max) * 100) : 0;
+    return `
+      <div class="bar-row">
+        <span class="bar-label" title="${label}">${label}</span>
+        <div class="bar-track"><div class="bar-fill" style="--target-width:${widthPct}%; background:${color}"></div></div>
+        <span class="bar-value">${pct}%</span>
+      </div>`;
+  }).join('');
+
+  card.innerHTML = `<h4>${question.label}</h4><div class="bar-list">${barsHtml}</div><p class="chart-meta">${total} respuesta${total === 1 ? '' : 's'}</p>`;
+  return card;
+}
+
+function renderSurveyCharts(rows) {
+  const grid = document.getElementById('results-grid');
+  grid.innerHTML = '';
+  surveyQuestions.forEach((q, i) => {
+    grid.appendChild(renderChartCard(q, rows, i, i));
+  });
+
+  // Las barras arrancan en 0% y se animan hasta su ancho real una vez que
+  // ya están en el DOM, para que el crecimiento se vea en vez de aparecer listo.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      grid.querySelectorAll('.bar-fill').forEach(el => {
+        el.style.width = el.style.getPropertyValue('--target-width');
+      });
+    });
+  });
+}
+
+function refreshSurveyPanel() {
+  if (surveyLoading) return;
+  surveyLoading = true;
+  const statusEl = document.getElementById('results-status');
+  const updatedEl = document.getElementById('results-updated');
+  statusEl.textContent = 'Cargando respuestas…';
+  statusEl.classList.remove('error');
+
+  loadSurveyResponses((err, json) => {
+    surveyLoading = false;
+    if (err) {
+      statusEl.textContent = 'No se pudo cargar la planilla. Verificá que siga publicada y volvé a intentar.';
+      statusEl.classList.add('error');
+      return;
+    }
+    try {
+      const rows = gvizToRows(json);
+      renderSurveyCharts(rows);
+      statusEl.textContent = '';
+      updatedEl.textContent = `Actualizado ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`;
+    } catch (e) {
+      console.warn('Error interpretando la respuesta de la planilla:', e);
+      statusEl.textContent = 'La planilla respondió, pero no se pudo interpretar el formato.';
+      statusEl.classList.add('error');
+    }
+  });
+}
+
+// --- Apertura / cierre del panel de resultados ---
+const resultsToggleBtn = document.getElementById('results-toggle');
+const resultsPanel = document.getElementById('results-panel');
+const resultsCloseBtn = document.getElementById('results-close');
+const resultsRefreshBtn = document.getElementById('results-refresh');
+
+function openResultsPanel() {
+  resultsPanel.classList.remove('hidden');
+  refreshSurveyPanel();
+}
+
+function closeResultsPanel() {
+  resultsPanel.classList.add('hidden');
+}
+
+resultsToggleBtn.addEventListener('click', openResultsPanel);
+resultsCloseBtn.addEventListener('click', closeResultsPanel);
+resultsRefreshBtn.addEventListener('click', refreshSurveyPanel);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !resultsPanel.classList.contains('hidden')) closeResultsPanel();
+});
