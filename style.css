@@ -449,9 +449,48 @@ h1 {
 .cinematic-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 40%, rgba(52,150,98,0.25), var(--night) 70%);
+  z-index: -2;
+  overflow: hidden;
+  background: var(--night);
+}
+
+/* Manchas orgánicas de color que se deforman y se desplazan lentamente
+   por detrás de todo, dando una sensación de movimiento fluido en vez
+   de un fondo estático. */
+.cinema-blob {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%;
+  filter: blur(85px);
+  opacity: 0.4;
+  background: var(--blob-color, var(--turf-glow));
+  mix-blend-mode: screen;
   transition: background 1.1s ease;
-  z-index: -1;
+  will-change: transform, border-radius;
+}
+
+.blob-a {
+  top: -18%;
+  left: -14%;
+  animation: cinema-blob-a 17s ease-in-out infinite;
+}
+
+.blob-b {
+  bottom: -22%;
+  right: -16%;
+  animation: cinema-blob-b 21s ease-in-out infinite;
+  opacity: 0.28;
+}
+
+@keyframes cinema-blob-a {
+  0%, 100% { border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%; transform: translate(0, 0) scale(1); }
+  50%      { border-radius: 60% 40% 45% 55% / 55% 60% 40% 45%; transform: translate(4%, 3%) scale(1.1); }
+}
+
+@keyframes cinema-blob-b {
+  0%, 100% { border-radius: 55% 45% 40% 60% / 50% 55% 45% 50%; transform: translate(0, 0) scale(1); }
+  50%      { border-radius: 40% 60% 55% 45% / 45% 40% 60% 55%; transform: translate(-4%, -3%) scale(1.14); }
 }
 
 /* Partículas flotantes de ambientación */
@@ -482,61 +521,54 @@ h1 {
 }
 
 .cinematic-visual {
+  position: relative;
   margin-bottom: 10px;
-  filter: drop-shadow(0 0 25px rgba(52,150,98,0.35));
-  animation: cinema-visual-in 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: cinema-visual-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @keyframes cinema-visual-in {
-  from { transform: scale(0.8); opacity: 0; }
+  from { transform: scale(0.85); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
 
-#cinema-ring, #cinema-ring-inner {
-  stroke: var(--turf-glow);
-  transform-origin: 150px 150px;
+/* Resplandor suave y difuso detrás de la ilustración, que respira
+   lentamente en vez de un anillo fino y rígido */
+.cinema-glow {
+  position: absolute;
+  inset: -50px;
+  border-radius: 50%;
+  filter: blur(40px);
+  background: radial-gradient(circle, var(--glow-color, rgba(52,150,98,0.55)), transparent 70%);
+  animation: cinema-glow-pulse 3.6s ease-in-out infinite;
+  z-index: -1;
 }
 
-#cinema-ring {
-  opacity: 0.55;
-  animation: cinema-pulse 3.2s ease-in-out infinite;
+@keyframes cinema-glow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50%      { transform: scale(1.1); opacity: 0.8; }
 }
 
-#cinema-ring-inner {
-  opacity: 0.9;
-  stroke-width: 1.5;
-  animation: cinema-pulse 3.2s ease-in-out infinite 1.6s;
+#cinema-icon {
+  animation: cinema-icon-float 4.2s ease-in-out infinite;
+  animation-delay: 1s;
 }
 
-@keyframes cinema-pulse {
-  0%   { r: 76px; opacity: 0.75; }
-  50%  { r: 98px; opacity: 0.15; }
-  100% { r: 76px; opacity: 0.75; }
+@keyframes cinema-icon-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
 }
 
-/* Dibujo animado del ícono: el trazo se revela con stroke-dashoffset,
-   controlado desde JS (que fija --len y arranca en 0) */
-.cinema-icon-draw {
-  stroke-dasharray: var(--len, 300);
-  stroke-dashoffset: var(--len, 300);
-  animation: cinema-draw 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: 0.15s;
-}
-
-@keyframes cinema-draw {
-  to { stroke-dashoffset: 0; }
-}
-
-.cinema-icon-fill {
+/* Cada forma de la ilustración entra por separado, escalonada desde JS,
+   para que se sienta dibujada de a partes y no un pegado plano */
+.cinema-part {
   opacity: 0;
-  transform: scale(0.6);
   transform-origin: 150px 150px;
-  animation: cinema-fill-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  animation-delay: 0.5s;
+  animation: cinema-part-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes cinema-fill-in {
-  to { opacity: 0.85; transform: scale(1); }
+@keyframes cinema-part-in {
+  from { opacity: 0; transform: scale(0.8) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .cinematic-text {

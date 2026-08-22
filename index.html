@@ -104,13 +104,15 @@
 
   <!-- Cinemática: secuencia animada a pantalla completa -->
   <div id="cinematic" class="cinematic hidden">
-    <div class="cinematic-bg"></div>
+    <div class="cinematic-bg" id="cinematic-bg">
+      <div class="cinema-blob blob-a" id="cinema-blob-a"></div>
+      <div class="cinema-blob blob-b" id="cinema-blob-b"></div>
+    </div>
     <div class="cinematic-particles" id="cinematic-particles"></div>
     <button id="cinematic-close" class="cinematic-close">×</button>
     <div class="cinematic-visual" id="cinematic-visual">
-      <svg id="cinema-svg" viewBox="0 0 300 300" width="220" height="220">
-        <circle id="cinema-ring" cx="150" cy="150" r="90" fill="none" stroke-width="3"/>
-        <circle id="cinema-ring-inner" cx="150" cy="150" r="76" fill="none"/>
+      <div class="cinema-glow" id="cinema-glow"></div>
+      <svg id="cinema-svg" viewBox="0 0 300 300" width="230" height="230">
         <g id="cinema-icon"></g>
       </svg>
     </div>

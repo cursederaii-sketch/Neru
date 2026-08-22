@@ -483,28 +483,50 @@ const cinemaSlides = [
   }
 ];
 
-// Cada ícono separa trazos (clase cinema-icon-draw, se "dibujan" con
-// stroke-dashoffset) de rellenos (clase cinema-icon-fill, entran con un
-// pequeño rebote de escala). Eso da una entrada más viva que un simple fade.
+// Cada ilustración es un pequeño conjunto de formas (círculos, arcos y
+// siluetas) en distintas opacidades de "currentColor" — un estilo duotono
+// con más cuerpo que un simple ícono de línea. Todas comparten la clase
+// cinema-part, que entra escalonada (ver renderCinemaSlide) para que la
+// escena se sienta dibujada por partes en vez de pegada de golpe.
 const cinemaIcons = {
-  ball: `<circle class="cinema-icon-draw" cx="150" cy="150" r="34" fill="none" stroke="currentColor" stroke-width="3"/>
-         <path class="cinema-icon-fill" d="M150 122 L172 138 L163 164 L137 164 L128 138 Z" fill="currentColor"/>`,
-  pulse: `<path class="cinema-icon-draw" d="M90 150 H120 L135 110 L165 190 L180 150 H210" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
-  team: `<circle class="cinema-icon-fill" cx="120" cy="130" r="16" fill="currentColor" style="animation-delay:0.5s"/>
-         <circle class="cinema-icon-fill" cx="180" cy="130" r="16" fill="currentColor" style="animation-delay:0.62s"/>
-         <circle class="cinema-icon-fill" cx="150" cy="100" r="16" fill="currentColor" style="animation-delay:0.74s"/>
-         <path class="cinema-icon-draw" d="M100 190 Q150 160 200 190" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>`,
-  weight: `<path class="cinema-icon-draw" d="M110 110 L190 190 M190 110 L110 190" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
-           <circle class="cinema-icon-draw" cx="150" cy="150" r="45" fill="none" stroke="currentColor" stroke-width="3" style="animation-delay:0.3s"/>`,
-  talk: `<path class="cinema-icon-draw" d="M105 115 h90 a10 10 0 0 1 10 10 v45 a10 10 0 0 1 -10 10 h-55 l-25 22 v-22 h-10 a10 10 0 0 1 -10 -10 v-45 a10 10 0 0 1 10 -10 z" fill="none" stroke="currentColor" stroke-width="3.5"/>`,
-  heart: `<path class="cinema-icon-fill" d="M150 195 C110 165 90 140 90 115 C90 95 105 82 122 82 C135 82 145 90 150 100 C155 90 165 82 178 82 C195 82 210 95 210 115 C210 140 190 165 150 195 Z" fill="currentColor"/>`
-};
-
-const cinemaThemeBg = {
-  neutral: 'radial-gradient(circle at 50% 40%, rgba(140,154,135,0.22), var(--night) 70%)',
-  turf: 'radial-gradient(circle at 50% 40%, rgba(52,150,98,0.28), var(--night) 70%)',
-  danger: 'radial-gradient(circle at 50% 40%, rgba(224,79,53,0.22), var(--night) 70%)',
-  caution: 'radial-gradient(circle at 50% 40%, rgba(201,138,30,0.25), var(--night) 70%)'
+  ball: `
+    <circle class="cinema-part" cx="150" cy="150" r="72" fill="currentColor" fill-opacity="0.12"/>
+    <circle class="cinema-part" cx="150" cy="150" r="54" fill="currentColor" fill-opacity="0.22"/>
+    <path class="cinema-part" d="M150 96 L172 112 L163 138 L137 138 L128 112 Z" fill="currentColor"/>
+    <path class="cinema-part" d="M150 138 L176 156 L166 186 L134 186 L124 156 Z" fill="currentColor" fill-opacity="0.85"/>
+    <path class="cinema-part" d="M108 118 L128 112 L137 138 L118 148 Z" fill="currentColor" fill-opacity="0.55"/>
+    <path class="cinema-part" d="M192 118 L172 112 L163 138 L182 148 Z" fill="currentColor" fill-opacity="0.55"/>
+    <ellipse class="cinema-part" cx="130" cy="118" rx="11" ry="6" fill="#ffffff" fill-opacity="0.35"/>`,
+  pulse: `
+    <circle class="cinema-part" cx="150" cy="150" r="80" fill="currentColor" fill-opacity="0.1"/>
+    <circle class="cinema-part" cx="150" cy="150" r="58" fill="currentColor" fill-opacity="0.16"/>
+    <path class="cinema-part" d="M84 150 H118 L132 106 L152 182 L168 128 L182 150 H216" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle class="cinema-part" cx="216" cy="150" r="6" fill="currentColor"/>
+    <circle class="cinema-part" cx="84" cy="150" r="6" fill="currentColor" fill-opacity="0.55"/>`,
+  team: `
+    <circle class="cinema-part" cx="150" cy="150" r="84" fill="currentColor" fill-opacity="0.1"/>
+    <path class="cinema-part" d="M96 198 Q150 162 204 198" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-opacity="0.5"/>
+    <circle class="cinema-part" cx="112" cy="142" r="21" fill="currentColor" fill-opacity="0.5"/>
+    <circle class="cinema-part" cx="188" cy="142" r="21" fill="currentColor" fill-opacity="0.5"/>
+    <circle class="cinema-part" cx="150" cy="112" r="24" fill="currentColor"/>`,
+  weight: `
+    <circle class="cinema-part" cx="150" cy="150" r="80" fill="currentColor" fill-opacity="0.1"/>
+    <path class="cinema-part" d="M90 176 A64 64 0 0 1 210 176" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-opacity="0.3"/>
+    <path class="cinema-part" d="M90 176 A64 64 0 0 1 178 98" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+    <path class="cinema-part" d="M150 150 L150 100" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+    <circle class="cinema-part" cx="150" cy="150" r="10" fill="currentColor"/>`,
+  talk: `
+    <circle class="cinema-part" cx="150" cy="150" r="84" fill="currentColor" fill-opacity="0.1"/>
+    <path class="cinema-part" d="M178 168 h48 a10 10 0 0 1 10 10 v26 a10 10 0 0 1 -10 10 h-28 l-16 14 v-14 h-4 a10 10 0 0 1 -10 -10 v-26 a10 10 0 0 1 10 -10 z" fill="currentColor" fill-opacity="0.4"/>
+    <path class="cinema-part" d="M92 104 h88 a14 14 0 0 1 14 14 v44 a14 14 0 0 1 -14 14 h-48 l-24 20 v-20 h-16 a14 14 0 0 1 -14 -14 v-44 a14 14 0 0 1 14 -14 z" fill="currentColor" fill-opacity="0.85"/>
+    <circle class="cinema-part" cx="120" cy="148" r="5.5" fill="var(--night)"/>
+    <circle class="cinema-part" cx="150" cy="148" r="5.5" fill="var(--night)"/>
+    <circle class="cinema-part" cx="180" cy="148" r="5.5" fill="var(--night)"/>`,
+  heart: `
+    <circle class="cinema-part" cx="150" cy="150" r="88" fill="currentColor" fill-opacity="0.12"/>
+    <circle class="cinema-part" cx="150" cy="150" r="66" fill="currentColor" fill-opacity="0.18"/>
+    <path class="cinema-part" d="M150 195 C110 165 90 140 90 115 C90 95 105 82 122 82 C135 82 145 90 150 100 C155 90 165 82 178 82 C195 82 210 95 210 115 C210 140 190 165 150 195 Z" fill="currentColor"/>
+    <ellipse class="cinema-part" cx="127" cy="105" rx="12" ry="7" fill="#ffffff" fill-opacity="0.3"/>`
 };
 
 const cinemaThemeStroke = {
@@ -519,14 +541,14 @@ let cinemaAutoTimer = null;
 const CINEMA_SLIDE_MS = 4500;
 
 const cinematicEl = document.getElementById('cinematic');
-const cinemaBg = document.querySelector('.cinematic-bg');
+const cinemaBlobA = document.getElementById('cinema-blob-a');
+const cinemaBlobB = document.getElementById('cinema-blob-b');
+const cinemaGlow = document.getElementById('cinema-glow');
 const cinemaTextEl = document.querySelector('.cinematic-text');
 const cinemaKicker = document.getElementById('cinema-kicker');
 const cinemaTitle = document.getElementById('cinema-title');
 const cinemaBody = document.getElementById('cinema-body');
 const cinemaIconGroup = document.getElementById('cinema-icon');
-const cinemaRing = document.getElementById('cinema-ring');
-const cinemaRingInner = document.getElementById('cinema-ring-inner');
 const cinemaProgress = document.getElementById('cinema-progress');
 const cinemaParticlesEl = document.getElementById('cinematic-particles');
 
@@ -580,23 +602,21 @@ function renderCinemaSlide(i, direction = 'next') {
 
   cinemaIconGroup.innerHTML = cinemaIcons[slide.icon];
 
-  // "Dibujar" cada trazo: medir su longitud real en px y animar el
-  // stroke-dashoffset desde ahí hasta 0, como si se trazara a mano.
-  cinemaIconGroup.querySelectorAll('.cinema-icon-draw').forEach(pathEl => {
-    const len = typeof pathEl.getTotalLength === 'function' ? pathEl.getTotalLength() : 300;
-    pathEl.style.setProperty('--len', len);
-  });
-  cinemaIconGroup.querySelectorAll('.cinema-icon-draw, .cinema-icon-fill').forEach(el => {
+  // Cada forma (.cinema-part) entra escalonada en el tiempo, como si la
+  // escena se fuera dibujando de a partes en vez de aparecer de golpe.
+  const parts = cinemaIconGroup.querySelectorAll('.cinema-part');
+  parts.forEach((el, idx) => {
     el.style.animation = 'none';
+    el.style.animationDelay = `${(idx * 0.07).toFixed(2)}s`;
     void el.offsetWidth;
     el.style.animation = '';
   });
 
   const stroke = cinemaThemeStroke[slide.theme];
   cinemaIconGroup.style.color = stroke;
-  cinemaRing.style.stroke = stroke;
-  cinemaRingInner.style.stroke = stroke;
-  cinemaBg.style.background = cinemaThemeBg[slide.theme];
+  cinemaGlow.style.setProperty('--glow-color', hexToRgba(stroke, 0.55));
+  cinemaBlobA.style.setProperty('--blob-color', hexToRgba(stroke, 1));
+  cinemaBlobB.style.setProperty('--blob-color', hexToRgba(stroke, 1));
 
   // Reiniciar la animación de entrada del ícono/anillo
   const visual = document.getElementById('cinematic-visual');
