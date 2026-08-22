@@ -309,6 +309,44 @@ window.addEventListener('resize', () => {
   world.height(window.innerHeight);
 });
 
+// --- Panel de controles: colapsado por defecto, se abre con el botón ---
+const tweaksToggleBtn = document.getElementById('tweaks-toggle');
+const tweaksPanel = document.getElementById('tweaks-panel');
+const tweaksCloseBtn = document.getElementById('tweaks-close');
+
+function openTweaksPanel() {
+  tweaksPanel.classList.add('open');
+  tweaksToggleBtn.classList.add('active', 'hidden-btn');
+  tweaksToggleBtn.setAttribute('aria-expanded', 'true');
+}
+
+function closeTweaksPanel() {
+  tweaksPanel.classList.remove('open');
+  tweaksToggleBtn.classList.remove('active', 'hidden-btn');
+  tweaksToggleBtn.setAttribute('aria-expanded', 'false');
+}
+
+tweaksToggleBtn.addEventListener('click', () => {
+  if (tweaksPanel.classList.contains('open')) {
+    closeTweaksPanel();
+  } else {
+    openTweaksPanel();
+  }
+});
+
+tweaksCloseBtn.addEventListener('click', closeTweaksPanel);
+
+// Cerrar el panel con Escape, o al hacer click fuera de él
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && tweaksPanel.classList.contains('open')) closeTweaksPanel();
+});
+
+document.addEventListener('click', (e) => {
+  if (!tweaksPanel.classList.contains('open')) return;
+  if (tweaksPanel.contains(e.target) || tweaksToggleBtn.contains(e.target)) return;
+  closeTweaksPanel();
+});
+
 // --- Controles del panel de ajustes ---
 const speedSlider = document.getElementById('speed-slider');
 speedSlider.addEventListener('input', (e) => {
@@ -445,18 +483,21 @@ const cinemaSlides = [
   }
 ];
 
+// Cada ícono separa trazos (clase cinema-icon-draw, se "dibujan" con
+// stroke-dashoffset) de rellenos (clase cinema-icon-fill, entran con un
+// pequeño rebote de escala). Eso da una entrada más viva que un simple fade.
 const cinemaIcons = {
-  ball: `<circle cx="150" cy="150" r="34" fill="none" stroke="currentColor" stroke-width="3"/>
-         <path d="M150 122 L172 138 L163 164 L137 164 L128 138 Z" fill="currentColor" opacity="0.85"/>`,
-  pulse: `<path d="M90 150 H120 L135 110 L165 190 L180 150 H210" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
-  team: `<circle cx="120" cy="130" r="16" fill="currentColor" opacity="0.9"/>
-         <circle cx="180" cy="130" r="16" fill="currentColor" opacity="0.9"/>
-         <circle cx="150" cy="100" r="16" fill="currentColor" opacity="0.9"/>
-         <path d="M100 190 Q150 160 200 190" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>`,
-  weight: `<path d="M110 110 L190 190 M190 110 L110 190" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
-           <circle cx="150" cy="150" r="45" fill="none" stroke="currentColor" stroke-width="3"/>`,
-  talk: `<path d="M105 115 h90 a10 10 0 0 1 10 10 v45 a10 10 0 0 1 -10 10 h-55 l-25 22 v-22 h-10 a10 10 0 0 1 -10 -10 v-45 a10 10 0 0 1 10 -10 z" fill="none" stroke="currentColor" stroke-width="3.5"/>`,
-  heart: `<path d="M150 195 C110 165 90 140 90 115 C90 95 105 82 122 82 C135 82 145 90 150 100 C155 90 165 82 178 82 C195 82 210 95 210 115 C210 140 190 165 150 195 Z" fill="currentColor" opacity="0.85"/>`
+  ball: `<circle class="cinema-icon-draw" cx="150" cy="150" r="34" fill="none" stroke="currentColor" stroke-width="3"/>
+         <path class="cinema-icon-fill" d="M150 122 L172 138 L163 164 L137 164 L128 138 Z" fill="currentColor"/>`,
+  pulse: `<path class="cinema-icon-draw" d="M90 150 H120 L135 110 L165 190 L180 150 H210" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
+  team: `<circle class="cinema-icon-fill" cx="120" cy="130" r="16" fill="currentColor" style="animation-delay:0.5s"/>
+         <circle class="cinema-icon-fill" cx="180" cy="130" r="16" fill="currentColor" style="animation-delay:0.62s"/>
+         <circle class="cinema-icon-fill" cx="150" cy="100" r="16" fill="currentColor" style="animation-delay:0.74s"/>
+         <path class="cinema-icon-draw" d="M100 190 Q150 160 200 190" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>`,
+  weight: `<path class="cinema-icon-draw" d="M110 110 L190 190 M190 110 L110 190" stroke="currentColor" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+           <circle class="cinema-icon-draw" cx="150" cy="150" r="45" fill="none" stroke="currentColor" stroke-width="3" style="animation-delay:0.3s"/>`,
+  talk: `<path class="cinema-icon-draw" d="M105 115 h90 a10 10 0 0 1 10 10 v45 a10 10 0 0 1 -10 10 h-55 l-25 22 v-22 h-10 a10 10 0 0 1 -10 -10 v-45 a10 10 0 0 1 10 -10 z" fill="none" stroke="currentColor" stroke-width="3.5"/>`,
+  heart: `<path class="cinema-icon-fill" d="M150 195 C110 165 90 140 90 115 C90 95 105 82 122 82 C135 82 145 90 150 100 C155 90 165 82 178 82 C195 82 210 95 210 115 C210 140 190 165 150 195 Z" fill="currentColor"/>`
 };
 
 const cinemaThemeBg = {
@@ -479,12 +520,15 @@ const CINEMA_SLIDE_MS = 4500;
 
 const cinematicEl = document.getElementById('cinematic');
 const cinemaBg = document.querySelector('.cinematic-bg');
+const cinemaTextEl = document.querySelector('.cinematic-text');
 const cinemaKicker = document.getElementById('cinema-kicker');
 const cinemaTitle = document.getElementById('cinema-title');
 const cinemaBody = document.getElementById('cinema-body');
 const cinemaIconGroup = document.getElementById('cinema-icon');
 const cinemaRing = document.getElementById('cinema-ring');
+const cinemaRingInner = document.getElementById('cinema-ring-inner');
 const cinemaProgress = document.getElementById('cinema-progress');
+const cinemaParticlesEl = document.getElementById('cinematic-particles');
 
 // Construir segmentos de progreso
 cinemaSlides.forEach((_, i) => {
@@ -495,10 +539,35 @@ cinemaSlides.forEach((_, i) => {
   cinemaProgress.appendChild(seg);
 });
 
-function renderCinemaSlide(i) {
+// Partículas de ambientación: puntitos que flotan hacia arriba durante
+// toda la cinemática, con tamaños, velocidades y demoras al azar para
+// que no se sientan sincronizadas ni mecánicas.
+function initCinemaParticles(count = 26) {
+  const colors = ['#349662', '#C98A1E', '#8C9A87'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('span');
+    const size = 2 + Math.random() * 3;
+    p.style.left = `${Math.random() * 100}%`;
+    p.style.width = `${size}px`;
+    p.style.height = `${size}px`;
+    p.style.animationDuration = `${10 + Math.random() * 14}s`;
+    p.style.animationDelay = `${Math.random() * -18}s`;
+    p.style.setProperty('--particle-color', colors[i % colors.length]);
+    cinemaParticlesEl.appendChild(p);
+  }
+}
+initCinemaParticles();
+
+function renderCinemaSlide(i, direction = 'next') {
   const slide = cinemaSlides[i];
 
-  // Reiniciar animaciones de texto (forzar reflow)
+  // Reiniciar animaciones de texto (forzar reflow), aplicando la dirección
+  // (adelante/atrás) para que la entrada del texto refleje hacia dónde
+  // se está navegando en la historia.
+  cinemaTextEl.classList.remove('dir-next', 'dir-prev');
+  void cinemaTextEl.offsetWidth;
+  cinemaTextEl.classList.add(direction === 'prev' ? 'dir-prev' : 'dir-next');
+
   [cinemaKicker, cinemaTitle, cinemaBody].forEach(el => {
     el.style.animation = 'none';
     void el.offsetWidth;
@@ -510,10 +579,30 @@ function renderCinemaSlide(i) {
   cinemaBody.textContent = slide.body;
 
   cinemaIconGroup.innerHTML = cinemaIcons[slide.icon];
+
+  // "Dibujar" cada trazo: medir su longitud real en px y animar el
+  // stroke-dashoffset desde ahí hasta 0, como si se trazara a mano.
+  cinemaIconGroup.querySelectorAll('.cinema-icon-draw').forEach(pathEl => {
+    const len = typeof pathEl.getTotalLength === 'function' ? pathEl.getTotalLength() : 300;
+    pathEl.style.setProperty('--len', len);
+  });
+  cinemaIconGroup.querySelectorAll('.cinema-icon-draw, .cinema-icon-fill').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = '';
+  });
+
   const stroke = cinemaThemeStroke[slide.theme];
   cinemaIconGroup.style.color = stroke;
   cinemaRing.style.stroke = stroke;
+  cinemaRingInner.style.stroke = stroke;
   cinemaBg.style.background = cinemaThemeBg[slide.theme];
+
+  // Reiniciar la animación de entrada del ícono/anillo
+  const visual = document.getElementById('cinematic-visual');
+  visual.style.animation = 'none';
+  void visual.offsetWidth;
+  visual.style.animation = '';
 
   // Progreso
   const segs = cinemaProgress.querySelectorAll('.seg');
@@ -526,8 +615,9 @@ function renderCinemaSlide(i) {
 
 function goToCinemaSlide(i) {
   clearTimeout(cinemaAutoTimer);
+  const direction = i < cinemaIndex ? 'prev' : 'next';
   cinemaIndex = (i + cinemaSlides.length) % cinemaSlides.length;
-  renderCinemaSlide(cinemaIndex);
+  renderCinemaSlide(cinemaIndex, direction);
   scheduleCinemaAdvance();
 }
 

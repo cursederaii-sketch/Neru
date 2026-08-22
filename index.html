@@ -49,9 +49,20 @@
     <div id="stats-bar" class="stats-bar"></div>
   </div>
 
+  <!-- Botón para abrir el panel de controles -->
+  <button id="tweaks-toggle" class="tweaks-toggle-btn" aria-label="Abrir controles del globo" aria-expanded="false" aria-controls="tweaks-panel">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+  </button>
+
   <!-- Panel de Ajustes (Tweaks) -->
-  <div class="tweaks-panel">
-    <div class="tweaks-header">Controles del Globo</div>
+  <div class="tweaks-panel" id="tweaks-panel">
+    <div class="tweaks-header">
+      <span>Controles del Globo</span>
+      <button id="tweaks-close" class="tweaks-close-btn" aria-label="Cerrar controles">×</button>
+    </div>
 
     <div class="control-group">
       <label for="search-input">Buscar país o caso</label>
@@ -93,10 +104,12 @@
   <!-- Cinemática: secuencia animada a pantalla completa -->
   <div id="cinematic" class="cinematic hidden">
     <div class="cinematic-bg"></div>
+    <div class="cinematic-particles" id="cinematic-particles"></div>
     <button id="cinematic-close" class="cinematic-close">×</button>
     <div class="cinematic-visual" id="cinematic-visual">
       <svg id="cinema-svg" viewBox="0 0 300 300" width="220" height="220">
         <circle id="cinema-ring" cx="150" cy="150" r="90" fill="none" stroke-width="3"/>
+        <circle id="cinema-ring-inner" cx="150" cy="150" r="76" fill="none"/>
         <g id="cinema-icon"></g>
       </svg>
     </div>
