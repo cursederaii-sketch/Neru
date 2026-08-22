@@ -190,45 +190,69 @@ function hexToRgba(hex, alpha) {
 }
 
 // Inicialización del Globo — texturas de mayor detalle: relieve, nubes, cielo estrellado
+//
+// TODO ESTO VA ENVUELTO EN try/catch A PROPÓSITO: si el WebGL falla por
+// cualquier motivo (GPU, drivers, contexto perdido, etc.), el resto del
+// sitio —filtros, buscador, panel de resultados, sonido ambiente— tiene
+// que seguir funcionando igual. Un "stub" con métodos que no hacen nada
+// evita que el resto del script se rompa si algo intenta llamar a world.*
+function createNoopGlobeStub() {
+  const stub = {};
+  const chainable = () => stub;
+  ['controls', 'scene', 'width', 'height', 'pointOfView', 'arcsData',
+   'showAtmosphere', 'labelsData', 'getGlobeRadius'].forEach(name => {
+    stub[name] = name === 'controls'
+      ? () => ({ autoRotate: false, autoRotateSpeed: 0 })
+      : chainable;
+  });
+  return stub;
+}
+
 const elem = document.getElementById('globe-container');
-const world = Globe()
-  (elem)
-  .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
-  .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-  .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-  .backgroundColor('#0D1512')
-  .atmosphereColor('#349662')
-  .atmosphereAltitude('0.28')
-  .pointOfView({ lat: 20, lng: -40, altitude: 2.2 })
+let world;
+try {
+  world = Globe()
+    (elem)
+    .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
+    .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
+    .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
+    .backgroundColor('#0D1512')
+    .atmosphereColor('#349662')
+    .atmosphereAltitude('0.28')
+    .pointOfView({ lat: 20, lng: -40, altitude: 2.2 })
 
-  .labelsData(placesData)
-  .labelLat(d => d.lat)
-  .labelLng(d => d.lng)
-  .labelText(d => d.title)
-  .labelSize(1.5)
-  .labelDotRadius(0.8)
-  .labelColor(d => d.color)
-  .labelResolution(2)
-  .onLabelClick(d => showInfo(d))
+    .labelsData(placesData)
+    .labelLat(d => d.lat)
+    .labelLng(d => d.lng)
+    .labelText(d => d.title)
+    .labelSize(1.5)
+    .labelDotRadius(0.8)
+    .labelColor(d => d.color)
+    .labelResolution(2)
+    .onLabelClick(d => showInfo(d))
 
-  .arcsData(buildArcsData(placesData))
-  .arcColor('color')
-  .arcDashLength(0.4)
-  .arcDashGap(0.2)
-  .arcDashAnimateTime(2000)
-  .arcStroke(0.5)
+    .arcsData(buildArcsData(placesData))
+    .arcColor('color')
+    .arcDashLength(0.4)
+    .arcDashGap(0.2)
+    .arcDashAnimateTime(2000)
+    .arcStroke(0.5)
 
-  // Anillos que laten sobre cada punto, coloreados según su categoría
-  .ringsData(placesData)
-  .ringLat(d => d.lat)
-  .ringLng(d => d.lng)
-  .ringColor(d => t => hexToRgba(d.color, 1 - t))
-  .ringMaxRadius(3.2)
-  .ringPropagationSpeed(1.8)
-  .ringRepeatPeriod(1400);
+    // Anillos que laten sobre cada punto, coloreados según su categoría
+    .ringsData(placesData)
+    .ringLat(d => d.lat)
+    .ringLng(d => d.lng)
+    .ringColor(d => t => hexToRgba(d.color, 1 - t))
+    .ringMaxRadius(3.2)
+    .ringPropagationSpeed(1.8)
+    .ringRepeatPeriod(1400);
 
-world.controls().autoRotate = true;
-world.controls().autoRotateSpeed = 0.5;
+  world.controls().autoRotate = true;
+  world.controls().autoRotateSpeed = 0.5;
+} catch (err) {
+  console.error('No se pudo inicializar el globo 3D. El resto del sitio sigue funcionando.', err);
+  world = createNoopGlobeStub();
+}
 
 // Capa de nubes semitransparente girando por encima del globo.
 // Envuelta en try/catch: si three.js o la textura fallan, el resto del sitio
@@ -305,8 +329,10 @@ fullscreenBtn.addEventListener('click', () => {
 });
 
 window.addEventListener('resize', () => {
-  world.width(window.innerWidth);
-  world.height(window.innerHeight);
+  try {
+    world.width(window.innerWidth);
+    world.height(window.innerHeight);
+  } catch (err) { /* si el globo no inicializó, no hay nada que redimensionar */ }
 });
 
 // --- Panel de controles: colapsado por defecto, se abre con el botón ---
