@@ -490,43 +490,68 @@ const cinemaSlides = [
 // escena se sienta dibujada por partes en vez de pegada de golpe.
 const cinemaIcons = {
   ball: `
-    <circle class="cinema-part" cx="150" cy="150" r="72" fill="currentColor" fill-opacity="0.12"/>
-    <circle class="cinema-part" cx="150" cy="150" r="54" fill="currentColor" fill-opacity="0.22"/>
-    <path class="cinema-part" d="M150 96 L172 112 L163 138 L137 138 L128 112 Z" fill="currentColor"/>
-    <path class="cinema-part" d="M150 138 L176 156 L166 186 L134 186 L124 156 Z" fill="currentColor" fill-opacity="0.85"/>
-    <path class="cinema-part" d="M108 118 L128 112 L137 138 L118 148 Z" fill="currentColor" fill-opacity="0.55"/>
-    <path class="cinema-part" d="M192 118 L172 112 L163 138 L182 148 Z" fill="currentColor" fill-opacity="0.55"/>
-    <ellipse class="cinema-part" cx="130" cy="118" rx="11" ry="6" fill="#ffffff" fill-opacity="0.35"/>`,
+    <g class="cinema-part">
+      <ellipse class="ball-shadow" cx="150" cy="205" rx="42" ry="10" fill="currentColor" fill-opacity="0.2"/>
+      <g class="ball-bounce">
+        <g class="ball-spin">
+          <circle cx="150" cy="150" r="46" fill="currentColor" fill-opacity="0.14"/>
+          <circle cx="150" cy="150" r="34" fill="currentColor"/>
+          <path d="M150 122 L163 132 L158 148 L142 148 L137 132 Z" fill="var(--night)" fill-opacity="0.55"/>
+          <path d="M150 148 L163 158 L158 174 L142 174 L137 158 Z" fill="var(--night)" fill-opacity="0.35"/>
+          <ellipse cx="138" cy="136" rx="7" ry="4" fill="#ffffff" fill-opacity="0.35"/>
+        </g>
+      </g>
+    </g>`,
   pulse: `
-    <circle class="cinema-part" cx="150" cy="150" r="80" fill="currentColor" fill-opacity="0.1"/>
-    <circle class="cinema-part" cx="150" cy="150" r="58" fill="currentColor" fill-opacity="0.16"/>
-    <path class="cinema-part" d="M84 150 H118 L132 106 L152 182 L168 128 L182 150 H216" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle class="cinema-part" cx="216" cy="150" r="6" fill="currentColor"/>
-    <circle class="cinema-part" cx="84" cy="150" r="6" fill="currentColor" fill-opacity="0.55"/>`,
+    <g class="cinema-part">
+      <circle cx="150" cy="150" r="80" fill="currentColor" fill-opacity="0.1"/>
+      <circle cx="150" cy="150" r="58" fill="currentColor" fill-opacity="0.16"/>
+      <clipPath id="ecgClip"><rect x="70" y="105" width="160" height="90"/></clipPath>
+      <g clip-path="url(#ecgClip)">
+        <path class="ecg-line" d="M-40 150 H0 L14 108 L34 192 L50 130 L64 150 H120 L134 108 L154 192 L170 130 L184 150 H240 L254 108 L274 192 L290 130 L304 150 H360" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <circle class="ecg-dot" cx="212" cy="150" r="6" fill="currentColor"/>
+    </g>`,
   team: `
-    <circle class="cinema-part" cx="150" cy="150" r="84" fill="currentColor" fill-opacity="0.1"/>
-    <path class="cinema-part" d="M96 198 Q150 162 204 198" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-opacity="0.5"/>
-    <circle class="cinema-part" cx="112" cy="142" r="21" fill="currentColor" fill-opacity="0.5"/>
-    <circle class="cinema-part" cx="188" cy="142" r="21" fill="currentColor" fill-opacity="0.5"/>
-    <circle class="cinema-part" cx="150" cy="112" r="24" fill="currentColor"/>`,
+    <g class="cinema-part">
+      <circle cx="150" cy="150" r="84" fill="currentColor" fill-opacity="0.1"/>
+      <path class="team-arc" d="M96 198 Q150 162 204 198" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-opacity="0.5"/>
+      <circle class="team-fig team-fig-a" cx="112" cy="142" r="21" fill="currentColor" fill-opacity="0.5"/>
+      <circle class="team-fig team-fig-b" cx="188" cy="142" r="21" fill="currentColor" fill-opacity="0.5"/>
+      <circle class="team-fig team-fig-c" cx="150" cy="112" r="24" fill="currentColor"/>
+    </g>`,
   weight: `
-    <circle class="cinema-part" cx="150" cy="150" r="80" fill="currentColor" fill-opacity="0.1"/>
-    <path class="cinema-part" d="M90 176 A64 64 0 0 1 210 176" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-opacity="0.3"/>
-    <path class="cinema-part" d="M90 176 A64 64 0 0 1 178 98" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
-    <path class="cinema-part" d="M150 150 L150 100" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
-    <circle class="cinema-part" cx="150" cy="150" r="10" fill="currentColor"/>`,
+    <g class="cinema-part">
+      <circle cx="150" cy="150" r="80" fill="currentColor" fill-opacity="0.1"/>
+      <path d="M90 176 A64 64 0 0 1 210 176" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-opacity="0.3"/>
+      <path class="weight-fill" d="M90 176 A64 64 0 0 1 178 98" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+      <g class="weight-needle">
+        <path d="M150 150 L150 100" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <circle cx="150" cy="150" r="10" fill="currentColor"/>
+    </g>`,
   talk: `
-    <circle class="cinema-part" cx="150" cy="150" r="84" fill="currentColor" fill-opacity="0.1"/>
-    <path class="cinema-part" d="M178 168 h48 a10 10 0 0 1 10 10 v26 a10 10 0 0 1 -10 10 h-28 l-16 14 v-14 h-4 a10 10 0 0 1 -10 -10 v-26 a10 10 0 0 1 10 -10 z" fill="currentColor" fill-opacity="0.4"/>
-    <path class="cinema-part" d="M92 104 h88 a14 14 0 0 1 14 14 v44 a14 14 0 0 1 -14 14 h-48 l-24 20 v-20 h-16 a14 14 0 0 1 -14 -14 v-44 a14 14 0 0 1 14 -14 z" fill="currentColor" fill-opacity="0.85"/>
-    <circle class="cinema-part" cx="120" cy="148" r="5.5" fill="var(--night)"/>
-    <circle class="cinema-part" cx="150" cy="148" r="5.5" fill="var(--night)"/>
-    <circle class="cinema-part" cx="180" cy="148" r="5.5" fill="var(--night)"/>`,
+    <g class="cinema-part">
+      <circle cx="150" cy="150" r="84" fill="currentColor" fill-opacity="0.1"/>
+      <g class="talk-bubble talk-bubble-b">
+        <path d="M178 168 h48 a10 10 0 0 1 10 10 v26 a10 10 0 0 1 -10 10 h-28 l-16 14 v-14 h-4 a10 10 0 0 1 -10 -10 v-26 a10 10 0 0 1 10 -10 z" fill="currentColor" fill-opacity="0.4"/>
+      </g>
+      <g class="talk-bubble talk-bubble-a">
+        <path d="M92 104 h88 a14 14 0 0 1 14 14 v44 a14 14 0 0 1 -14 14 h-48 l-24 20 v-20 h-16 a14 14 0 0 1 -14 -14 v-44 a14 14 0 0 1 14 -14 z" fill="currentColor" fill-opacity="0.85"/>
+        <circle class="talk-dot" cx="120" cy="148" r="5.5" fill="var(--night)"/>
+        <circle class="talk-dot" cx="150" cy="148" r="5.5" fill="var(--night)"/>
+        <circle class="talk-dot" cx="180" cy="148" r="5.5" fill="var(--night)"/>
+      </g>
+    </g>`,
   heart: `
-    <circle class="cinema-part" cx="150" cy="150" r="88" fill="currentColor" fill-opacity="0.12"/>
-    <circle class="cinema-part" cx="150" cy="150" r="66" fill="currentColor" fill-opacity="0.18"/>
-    <path class="cinema-part" d="M150 195 C110 165 90 140 90 115 C90 95 105 82 122 82 C135 82 145 90 150 100 C155 90 165 82 178 82 C195 82 210 95 210 115 C210 140 190 165 150 195 Z" fill="currentColor"/>
-    <ellipse class="cinema-part" cx="127" cy="105" rx="12" ry="7" fill="#ffffff" fill-opacity="0.3"/>`
+    <g class="cinema-part">
+      <circle class="heart-ring" cx="150" cy="150" r="82" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle class="heart-ring heart-ring-2" cx="150" cy="150" r="82" fill="none" stroke="currentColor" stroke-width="2"/>
+      <g class="heart-beat">
+        <path d="M150 195 C110 165 90 140 90 115 C90 95 105 82 122 82 C135 82 145 90 150 100 C155 90 165 82 178 82 C195 82 210 95 210 115 C210 140 190 165 150 195 Z" fill="currentColor"/>
+        <ellipse cx="127" cy="105" rx="12" ry="7" fill="#ffffff" fill-opacity="0.3"/>
+      </g>
+    </g>`
 };
 
 const cinemaThemeStroke = {

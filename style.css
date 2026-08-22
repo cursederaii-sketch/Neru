@@ -446,6 +446,39 @@ h1 {
   pointer-events: none;
 }
 
+/* Barras estilo "widescreen" arriba y abajo, como el encuadre de una
+   serie o un tráiler, para reforzar que esto es una pieza de video
+   y no una tarjeta estática */
+.cinema-letterbox {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8.5%;
+  min-height: 34px;
+  background: var(--night);
+  z-index: 3;
+}
+
+.cinema-letterbox.top {
+  top: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cinema-letterbox.bottom {
+  bottom: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Viñeta suave para que los bordes se oscurezcan como en una toma de
+   cámara real, en vez de un rectángulo de color plano */
+.cinema-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0,0,0,0.55) 100%);
+}
+
 .cinematic-bg {
   position: absolute;
   inset: 0;
@@ -522,6 +555,7 @@ h1 {
 
 .cinematic-visual {
   position: relative;
+  z-index: 4;
   margin-bottom: 10px;
   animation: cinema-visual-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -558,6 +592,18 @@ h1 {
   50%      { transform: translateY(-6px); }
 }
 
+/* Movimiento de cámara lento y continuo (estilo "Ken Burns"), para que
+   la escena nunca se sienta congelada, como en un video real */
+#cinema-svg {
+  animation: cinema-kenburns 9s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes cinema-kenburns {
+  0%, 100% { transform: scale(1) translate(0, 0); }
+  50%      { transform: scale(1.05) translate(-1%, 1%); }
+}
+
 /* Cada forma de la ilustración entra por separado, escalonada desde JS,
    para que se sienta dibujada de a partes y no un pegado plano */
 .cinema-part {
@@ -571,7 +617,165 @@ h1 {
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* ---- Animaciones propias de cada escena: la idea es que, una vez que
+   la ilustración terminó de entrar, se quede viva en un loop — como
+   metraje real y no una imagen fija con un ícono encima. ---- */
+
+/* Pelota: rebota, gira en el aire y proyecta una sombra que se
+   achica/agranda según la altura, simulando gravedad real. */
+.ball-bounce {
+  transform-origin: 150px 205px;
+  animation: ball-bounce 1.1s cubic-bezier(0.5, 0, 0.35, 1) infinite;
+}
+
+@keyframes ball-bounce {
+  0%   { transform: translateY(0); }
+  45%  { transform: translateY(-46px); }
+  100% { transform: translateY(0); }
+}
+
+.ball-spin {
+  transform-origin: 150px 150px;
+  animation: ball-spin 1.1s linear infinite;
+}
+
+@keyframes ball-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.ball-shadow {
+  transform-origin: 150px 205px;
+  animation: ball-shadow 1.1s cubic-bezier(0.5, 0, 0.35, 1) infinite;
+}
+
+@keyframes ball-shadow {
+  0%   { transform: scaleX(1); opacity: 0.22; }
+  45%  { transform: scaleX(0.55); opacity: 0.08; }
+  100% { transform: scaleX(1); opacity: 0.22; }
+}
+
+/* Pulso: la línea de electrocardiograma corre sin parar, como un
+   monitor real, en vez de dibujarse una sola vez y quedar quieta. */
+.ecg-line {
+  animation: ecg-scroll 2.4s linear infinite;
+}
+
+@keyframes ecg-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-120px); }
+}
+
+.ecg-dot {
+  animation: ecg-dot-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ecg-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.6); opacity: 0.4; }
+}
+
+/* Equipo: cada figura respira con un ritmo levemente distinto, como
+   gente parada en un grupo, y el arco de abajo pulsa suavemente. */
+.team-fig {
+  animation: team-bob 2.6s ease-in-out infinite;
+}
+
+.team-fig-a { animation-delay: 0s; }
+.team-fig-b { animation-delay: 0.35s; }
+.team-fig-c { animation-delay: 0.7s; }
+
+@keyframes team-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
+.team-arc {
+  animation: team-arc-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes team-arc-pulse {
+  0%, 100% { stroke-opacity: 0.5; }
+  50%      { stroke-opacity: 0.2; }
+}
+
+/* Presión: la aguja del medidor tiembla entre valores altos, como
+   una tensión que no logra bajar. */
+.weight-needle {
+  transform-origin: 150px 150px;
+  animation: weight-tremble 1.8s ease-in-out infinite;
+}
+
+@keyframes weight-tremble {
+  0%, 100% { transform: rotate(-7deg); }
+  50%      { transform: rotate(7deg); }
+}
+
+.weight-fill {
+  animation: weight-fill-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes weight-fill-pulse {
+  0%, 100% { stroke-opacity: 1; }
+  50%      { stroke-opacity: 0.6; }
+}
+
+/* Hablar: dos burbujas de chat se turnan, como una conversación real,
+   y los puntitos "escriben" en bucle. */
+.talk-bubble {
+  transform-origin: 150px 150px;
+  animation: talk-turn 3s ease-in-out infinite;
+}
+
+.talk-bubble-b { animation-delay: 1.5s; }
+
+@keyframes talk-turn {
+  0%, 40%, 100% { transform: scale(1); }
+  20%           { transform: scale(1.04); }
+}
+
+.talk-dot {
+  animation: talk-dot-bounce 1.1s ease-in-out infinite;
+}
+
+.talk-dot:nth-child(2) { animation-delay: 0.15s; }
+.talk-dot:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes talk-dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+  30%           { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Corazón final: late con el ritmo real de un corazón (dos golpes
+   cortos y una pausa) y emite anillos de sonda hacia afuera sin parar. */
+.heart-beat {
+  transform-origin: 150px 150px;
+  animation: heart-beat 1.6s ease-in-out infinite;
+}
+
+@keyframes heart-beat {
+  0%, 100% { transform: scale(1); }
+  14%      { transform: scale(1.12); }
+  28%      { transform: scale(1); }
+  42%      { transform: scale(1.08); }
+  56%      { transform: scale(1); }
+}
+
+.heart-ring {
+  transform-origin: 150px 150px;
+  animation: heart-ring-out 2.4s ease-out infinite;
+}
+
+.heart-ring-2 { animation-delay: 1.2s; }
+
+@keyframes heart-ring-out {
+  0%   { transform: scale(0.7); stroke-opacity: 0.5; }
+  100% { transform: scale(1.15); stroke-opacity: 0; }
+}
+
 .cinematic-text {
+  position: relative;
+  z-index: 4;
   max-width: 640px;
   text-align: center;
   padding: 0 24px;
@@ -625,8 +829,10 @@ h1 {
 }
 
 .cinematic-controls {
+.cinematic-controls {
   position: absolute;
   bottom: 50px;
+  z-index: 4;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -685,6 +891,7 @@ h1 {
   position: absolute;
   top: 24px;
   right: 30px;
+  z-index: 4;
   background: none;
   border: none;
   color: var(--night-dim);
@@ -696,6 +903,7 @@ h1 {
   position: absolute;
   bottom: 50px;
   right: 30px;
+  z-index: 4;
   background: none;
   border: 1px solid var(--night-dim);
   color: var(--night-dim);

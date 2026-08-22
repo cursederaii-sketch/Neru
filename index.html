@@ -104,11 +104,13 @@
 
   <!-- Cinemática: secuencia animada a pantalla completa -->
   <div id="cinematic" class="cinematic hidden">
+    <div class="cinema-letterbox top"></div>
     <div class="cinematic-bg" id="cinematic-bg">
       <div class="cinema-blob blob-a" id="cinema-blob-a"></div>
       <div class="cinema-blob blob-b" id="cinema-blob-b"></div>
     </div>
     <div class="cinematic-particles" id="cinematic-particles"></div>
+    <div class="cinema-vignette"></div>
     <button id="cinematic-close" class="cinematic-close">×</button>
     <div class="cinematic-visual" id="cinematic-visual">
       <div class="cinema-glow" id="cinema-glow"></div>
@@ -127,6 +129,7 @@
       <button id="cinema-next" class="cinema-nav">›</button>
     </div>
     <button id="cinema-skip" class="cinema-skip">Saltar</button>
+    <div class="cinema-letterbox bottom"></div>
   </div>
 
   <!-- Panel de Resultados: gráficos en vivo de la encuesta (Google Sheets) -->
