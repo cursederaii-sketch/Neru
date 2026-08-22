@@ -694,7 +694,14 @@ function goToCinemaSlide(i) {
 
 function scheduleCinemaAdvance() {
   clearTimeout(cinemaAutoTimer);
-  if (cinemaIndex === cinemaSlides.length - 1) return; // se detiene en el mensaje final
+  if (cinemaIndex === cinemaSlides.length - 1) {
+    // Mensaje final: se queda un rato en pantalla y después redirige
+    // a los resultados de la encuesta.
+    cinemaAutoTimer = setTimeout(() => {
+      window.location.href = 'resultados.html';
+    }, CINEMA_SLIDE_MS);
+    return;
+  }
   cinemaAutoTimer = setTimeout(() => goToCinemaSlide(cinemaIndex + 1), CINEMA_SLIDE_MS);
 }
 
@@ -713,15 +720,23 @@ function closeCinematic() {
   world.controls().autoRotate = true;
 }
 
+function goToNextCinemaSlideOrFinish() {
+  if (cinemaIndex === cinemaSlides.length - 1) {
+    window.location.href = 'resultados.html';
+    return;
+  }
+  goToCinemaSlide(cinemaIndex + 1);
+}
+
 document.getElementById('cinematic-btn').addEventListener('click', openCinematic);
 document.getElementById('cinematic-close').addEventListener('click', closeCinematic);
 document.getElementById('cinema-skip').addEventListener('click', closeCinematic);
-document.getElementById('cinema-next').addEventListener('click', () => goToCinemaSlide(cinemaIndex + 1));
+document.getElementById('cinema-next').addEventListener('click', goToNextCinemaSlideOrFinish);
 document.getElementById('cinema-prev').addEventListener('click', () => goToCinemaSlide(cinemaIndex - 1));
 
 document.addEventListener('keydown', (e) => {
   if (cinematicEl.classList.contains('hidden')) return;
-  if (e.key === 'ArrowRight') goToCinemaSlide(cinemaIndex + 1);
+  if (e.key === 'ArrowRight') goToNextCinemaSlideOrFinish();
   if (e.key === 'ArrowLeft') goToCinemaSlide(cinemaIndex - 1);
   if (e.key === 'Escape') closeCinematic();
 });
@@ -1000,28 +1015,9 @@ function refreshSurveyPanel() {
   });
 }
 
-// --- Apertura / cierre del panel de resultados ---
-const resultsToggleBtn = document.getElementById('results-toggle');
-const resultsPanel = document.getElementById('results-panel');
-const resultsCloseBtn = document.getElementById('results-close');
-const resultsRefreshBtn = document.getElementById('results-refresh');
-
-function openResultsPanel() {
-  resultsPanel.classList.remove('hidden');
-  refreshSurveyPanel();
-}
-
-function closeResultsPanel() {
-  resultsPanel.classList.add('hidden');
-}
-
-resultsToggleBtn.addEventListener('click', openResultsPanel);
-resultsCloseBtn.addEventListener('click', closeResultsPanel);
-resultsRefreshBtn.addEventListener('click', refreshSurveyPanel);
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !resultsPanel.classList.contains('hidden')) closeResultsPanel();
-});
+// El panel de resultados embebido ya no se usa: al terminar la cinemática
+// se redirige a resultados.html (página aparte), ver openCinematic/
+// scheduleCinemaAdvance más arriba.
 
 // =====================================================================
 // SONIDO AMBIENTE: pad calmo + "aire" filtrado, generados con Web Audio

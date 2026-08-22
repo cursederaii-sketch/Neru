@@ -36,7 +36,6 @@
         <button id="fullscreen-btn" class="btn">Pantalla Completa</button>
         <button id="tour-btn" class="btn btn-accent">▶ Recorrido guiado</button>
         <button id="cinematic-btn" class="btn btn-cinema">🎬 Ver la historia</button>
-        <a id="results-toggle" class="btn btn-results" href="resultados.html" target="_blank" rel="noopener">📊 Resultados de la encuesta</a>
         <button id="ambient-toggle" class="btn btn-ambient" aria-pressed="false">🎧 Sonido ambiente</button>
       </div>
     </header>
@@ -138,24 +137,6 @@
     </div>
     <button id="cinema-skip" class="cinema-skip">Saltar</button>
     <div class="cinema-letterbox bottom"></div>
-  </div>
-
-  <!-- Panel de Resultados: gráficos en vivo de la encuesta (Google Sheets) -->
-  <div id="results-panel" class="results-panel hidden">
-    <div class="results-header">
-      <div>
-        <p class="kicker">En vivo · Google Sheets</p>
-        <h2>Resultados de la encuesta</h2>
-      </div>
-      <div class="results-header-actions">
-        <span id="results-updated" class="results-updated"></span>
-        <button id="results-refresh" class="btn" aria-label="Actualizar datos">↻ Actualizar</button>
-        <button id="results-close" class="close-btn" aria-label="Cerrar resultados">×</button>
-      </div>
-    </div>
-    <p id="results-status" class="results-status"></p>
-    <div id="results-grid" class="results-grid"></div>
-    <div id="freetext-section" class="freetext-section"></div>
   </div>
 
   <script src="script.js?v=3"></script>
