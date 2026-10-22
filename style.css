@@ -1236,11 +1236,11 @@ h1 {
 .btn-playlist.playing { background: #1DB954; color: var(--night); }
 
 .playlist-panel {
-  position: absolute;
+  position: fixed;
   bottom: 30px;
   right: 30px;
   width: 360px;
-  z-index: 22;
+  z-index: 60;
   pointer-events: none;
   background: var(--night-panel);
   border: 1px solid var(--night-dim);
@@ -1283,7 +1283,7 @@ h1 {
 
 @media (max-width: 768px) {
   .playlist-panel {
-    bottom: 70px;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     left: 15px;
     right: 15px;
     width: auto;
@@ -1582,3 +1582,15 @@ h1 { animation-delay: 0.12s; }
   .kicker, h1, .header-actions { animation: none; }
   .info-card, .tweaks-panel, .playlist-panel, .btn { transition-duration: 0.01ms; }
 }
+
+.playlist-open {
+  display: block;
+  margin-top: 10px;
+  text-align: center;
+  font-family: var(--body);
+  font-size: 0.85rem;
+  color: var(--night-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.playlist-open:hover { color: var(--chalk); }

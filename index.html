@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Fraunces:wght@400;500&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 
   <!-- Dependencia de Globe.gl. OJO: globe.gl ya trae su PROPIA copia interna de three.js
        empaquetada adentro (no la expone como `window.THREE`). Por eso NO hay que cargar
@@ -21,6 +21,54 @@
        preparado para funcionar sin `THREE` global (ver el guard `typeof THREE === 'undefined'`
        más abajo en script.js), así que simplemente se omite la capa de nubes. -->
   <script src="https://unpkg.com/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
+  <!-- Avisos de error visibles en pantalla (útil en el celular, donde no hay consola) -->
+  <script>
+    window.addEventListener('error', function (e) {
+      var t = e.target, msg;
+      if (t && t !== window && (t.src || t.href)) msg = 'No cargó: ' + (t.src || t.href);
+      else msg = (e.message || 'Error') + ' (' + String(e.filename || '').split('/').pop() + ':' + (e.lineno || '?') + ')';
+      var box = document.getElementById('err-strip');
+      if (!box) {
+        box = document.createElement('div');
+        box.id = 'err-strip';
+        box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#b23d28;color:#fff;font:12px/1.4 monospace;padding:8px 38px 8px 10px;word-break:break-all';
+        var x = document.createElement('button');
+        x.textContent = '×';
+        x.style.cssText = 'position:absolute;top:4px;right:8px;background:none;border:0;color:#fff;font-size:20px';
+        x.onclick = function () { box.remove(); };
+        box.appendChild(x);
+        (document.body || document.documentElement).appendChild(box);
+      }
+      if (box.children.length < 4) {
+        var line = document.createElement('div');
+        line.textContent = msg;
+        box.appendChild(line);
+      }
+    }, true);
+
+    // Playlist de Spotify: definida acá para no depender de otros archivos.
+    window.togglePlaylist = function (forceOpen) {
+      var panel = document.getElementById('playlist-panel');
+      var btn = document.getElementById('playlist-btn');
+      var holder = document.getElementById('playlist-embed');
+      if (!panel || !btn || !holder) return;
+      var open = typeof forceOpen === 'boolean' ? forceOpen : !panel.classList.contains('open');
+      if (open && !holder.querySelector('iframe')) {
+        var f = document.createElement('iframe');
+        f.src = holder.getAttribute('data-src');
+        f.title = 'Playlist de Spotify';
+        f.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        holder.appendChild(f);
+      }
+      panel.classList.toggle('open', open);
+      btn.classList.toggle('playing', open);
+      btn.setAttribute('aria-expanded', String(open));
+      panel.setAttribute('aria-hidden', String(!open));
+    };
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') window.togglePlaylist(false);
+    });
+  </script>
 </head>
 <body>
 
@@ -37,7 +85,7 @@
         <button id="tour-btn" class="btn btn-accent">▶ Recorrido guiado</button>
         <button id="cinematic-btn" class="btn btn-cinema">🎬 Ver la historia</button>
         <button id="ambient-toggle" class="btn btn-ambient" aria-pressed="false">🎧 Sonido ambiente</button>
-        <button id="playlist-btn" class="btn btn-playlist" aria-expanded="false" aria-controls="playlist-panel">🎵 Playlist</button>
+        <button id="playlist-btn" type="button" class="btn btn-playlist" onclick="togglePlaylist()" aria-expanded="false" aria-controls="playlist-panel">🎵 Playlist</button>
       </div>
     </header>
 
@@ -114,9 +162,10 @@
   <div id="playlist-panel" class="playlist-panel" aria-hidden="true">
     <div class="playlist-header">
       <span>🎵 Playlist</span>
-      <button id="playlist-close" class="tweaks-close-btn" aria-label="Cerrar playlist">×</button>
+      <button id="playlist-close" type="button" class="tweaks-close-btn" onclick="togglePlaylist(false)" aria-label="Cerrar playlist">×</button>
     </div>
     <div id="playlist-embed" data-src="https://open.spotify.com/embed/playlist/5rNuQ1a2cndeSxPgUrO0Df?utm_source=generator&theme=0"></div>
+    <a class="playlist-open" href="https://open.spotify.com/playlist/5rNuQ1a2cndeSxPgUrO0Df" target="_blank" rel="noopener">Abrir en Spotify</a>
   </div>
 
   <!-- Cinemática: secuencia animada a pantalla completa -->
@@ -149,7 +198,6 @@
     <div class="cinema-letterbox bottom"></div>
   </div>
 
-  <script src="playlist.js?v=1"></script>
-  <script src="script.js?v=4"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>
