@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Fraunces:wght@400;500&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 
   <!-- Dependencia de Globe.gl. OJO: globe.gl ya trae su PROPIA copia interna de three.js
        empaquetada adentro (no la expone como `window.THREE`). Por eso NO hay que cargar
@@ -30,13 +30,14 @@
   <!-- Interfaz de usuario superpuesta -->
   <div class="ui-layer">
     <header class="header">
-      <p class="kicker">Vista global · Salud mental y fútbol</p>
+      <p class="kicker">Salud mental y fútbol en el mundo</p>
       <h1>Cada punto<br>tiene una historia</h1>
       <div class="header-actions">
         <button id="fullscreen-btn" class="btn">Pantalla Completa</button>
         <button id="tour-btn" class="btn btn-accent">▶ Recorrido guiado</button>
         <button id="cinematic-btn" class="btn btn-cinema">🎬 Ver la historia</button>
         <button id="ambient-toggle" class="btn btn-ambient" aria-pressed="false">🎧 Sonido ambiente</button>
+        <button id="playlist-btn" class="btn btn-playlist" aria-expanded="false" aria-controls="playlist-panel">🎵 Playlist</button>
       </div>
     </header>
 
@@ -107,6 +108,15 @@
       <div class="legend-item"><span class="dot turf"></span> Recuperación / protección</div>
       <div class="legend-item"><span class="dot info"></span> Dato global</div>
     </div>
+  </div>
+
+  <!-- Playlist de Spotify (el iframe se carga recién al abrir el panel por primera vez) -->
+  <div id="playlist-panel" class="playlist-panel" aria-hidden="true">
+    <div class="playlist-header">
+      <span>🎵 Playlist</span>
+      <button id="playlist-close" class="tweaks-close-btn" aria-label="Cerrar playlist">×</button>
+    </div>
+    <div id="playlist-embed" data-src="https://open.spotify.com/embed/playlist/5rNuQ1a2cndeSxPgUrO0Df?utm_source=generator&theme=0"></div>
   </div>
 
   <!-- Cinemática: secuencia animada a pantalla completa -->
